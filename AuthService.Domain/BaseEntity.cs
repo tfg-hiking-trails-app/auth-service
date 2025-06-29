@@ -6,10 +6,11 @@ namespace AuthService.Domain
     public abstract class BaseEntity
     {
         [Key]
-        [Column("dd")]
+        [Column("id")]
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(36)]
         [Column("code")]
         public Guid Code { get; set; }
 

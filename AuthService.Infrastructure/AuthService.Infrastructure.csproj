@@ -14,4 +14,12 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.3.efcore.9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authentication\Encryption\" />
+    <Folder Include="Authentication\Token\" />
+    <Folder Include="Data\Configurations\Mapping\" />
+    <Folder Include="Data\Repositories\" />
+    <Folder Include="Messaging(RabbitMQ)\" />
+  </ItemGroup>
+
 </Project>
