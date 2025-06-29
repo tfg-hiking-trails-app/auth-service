@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AuthService.Domain
+namespace AuthService.Domain.Entities
 {
     public abstract class BaseEntity
     {
