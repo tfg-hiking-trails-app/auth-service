@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AuthService.Domain
 {
-    internal class BaseEntity
+    public abstract class BaseEntity
     {
         [Key]
         [Column("dd")]

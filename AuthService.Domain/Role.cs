@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AuthService.Domain
 {
     [Table("Role")]
-    internal class Role : BaseEntity
+    public class Role : BaseEntity
     {
         [Required]
         [MaxLength(50)]

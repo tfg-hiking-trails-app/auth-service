@@ -4,17 +4,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AuthService.Domain
 {
     [Table("User")]
-    internal class User : BaseEntity
+    public class User : BaseEntity
     {
         [Required]
         [Column("role_id")]
         public int RoleId { get; set; }
 
+        [ForeignKey("RoleId")]
+        public virtual Role? Role { get; set; }
+
         [Required]
         [Column("status_id")]
         public int StatusId { get; set; }
 
+        [ForeignKey("StatusId")]
+        public virtual Status? Status { get; set; }
+
         [Required]
+        [MaxLength(50)]
         [Column("username")]
         public string Username { get; set; } = string.Empty;
 
@@ -45,11 +52,5 @@ namespace AuthService.Domain
         [MaxLength(255)]
         [Column("profile_picture_url")]
         public string ProfilePictureUrl { get; set; } = string.Empty;
-
-        [ForeignKey("RoleId")]
-        public virtual Role? Role { get; set; }
-
-        [ForeignKey("StatusId")]
-        public virtual Status? Status { get; set; }
     }
 }

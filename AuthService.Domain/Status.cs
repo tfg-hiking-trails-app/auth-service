@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AuthService.Domain
 {
     [Table("Status")]
-    internal class Status : BaseEntity
+    public class Status : BaseEntity
     {
         [Required]
         [MaxLength(50)]
