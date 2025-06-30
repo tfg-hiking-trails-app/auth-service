@@ -11,7 +11,7 @@ public class StatusProfile : Profile
     public StatusProfile()
     {
         CreateMap<Status, StatusEntityDto>().ReverseMap();
-        //CreateMap<Status, CreateStatusDto>().ReverseMap();
-        //CreateMap<Status, UpdateStatusDto>().ReverseMap();
+        CreateMap<Status, CreateStatusEntityDto>().ReverseMap();
+        CreateMap<Status, UpdateStatusEntityDto>().ReverseMap();
     }
 }
