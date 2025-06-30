@@ -11,7 +11,7 @@ public class RoleProfile : Profile
     public RoleProfile()
     {
         CreateMap<Role, RoleEntityDto>().ReverseMap();
-        //CreateMap<Role, CreateRoleDto>().ReverseMap();
-        //CreateMap<Role, UpdateRoleDto>().ReverseMap();
+        CreateMap<Role, CreateRoleEntityDto>().ReverseMap();
+        CreateMap<Role, UpdateRoleEntityDto>().ReverseMap();
     }
 }
