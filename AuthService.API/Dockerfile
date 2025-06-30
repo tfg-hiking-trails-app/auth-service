@@ -11,19 +11,19 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["AuthService/AuthService.csproj", "AuthService/"]
-RUN dotnet restore "./AuthService/AuthService.csproj"
+COPY ["AuthService.API/AuthService.API.csproj", "AuthService.API/"]
+RUN dotnet restore "./AuthService.API/AuthService.API.csproj"
 COPY . .
-WORKDIR "/src/AuthService"
-RUN dotnet build "./AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/AuthService.API"
+RUN dotnet build "./AuthService.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./AuthService.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Esta fase se usa en producción o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuración de depuración)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "AuthService.dll"]
+ENTRYPOINT ["dotnet", "AuthService.API.dll"]
