@@ -37,11 +37,11 @@ namespace AuthService.Domain.Entities
 
         [MaxLength(50)]
         [Column("first_name")]
-        public string FirstName { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
 
         [MaxLength(50)]
         [Column("last_name")]
-        public string LastName { get; set; } = string.Empty;
+        public string? LastName { get; set; }
 
         [Column("date_of_birth", TypeName = "date")]
         public DateTime? DateOfBirth { get; set; }
@@ -51,6 +51,6 @@ namespace AuthService.Domain.Entities
 
         [MaxLength(255)]
         [Column("profile_picture_url")]
-        public string ProfilePictureUrl { get; set; } = string.Empty;
+        public string? ProfilePictureUrl { get; set; }
     }
 }

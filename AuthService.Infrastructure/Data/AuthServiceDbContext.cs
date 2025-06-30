@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using AuthService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Data
 {
@@ -13,13 +15,16 @@ namespace AuthService.Infrastructure.Data
         {
             _configuration = configuration;
         }
-
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(
-                _configuration.GetConnectionString("DefaultConnection"),
-                new MySqlServerVersion(new Version(12, 0, 1))
-            );
+            optionsBuilder
+                .UseMySql(
+                    _configuration.GetConnectionString("DefaultConnection"),
+                    new MySqlServerVersion(new Version(12, 0, 1))
+                )
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, LogLevel.Information);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
