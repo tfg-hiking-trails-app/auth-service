@@ -2,9 +2,9 @@
 
 namespace AuthService.Application.DTOs.Create;
 
-public class CreateStatusEntityDto
+public record CreateStatusEntityDto
 {
     [Required]
     [MaxLength(50, ErrorMessage = "Status value must less than 50 characters")]
-    public string StatusValue { get; set; } = string.Empty;
+    public string? StatusValue { get; set; }
 }

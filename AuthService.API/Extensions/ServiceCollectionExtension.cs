@@ -1,12 +1,10 @@
-﻿using System.Reflection;
+﻿using AuthService.API.DTOs.Mapping;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
-using AutoMapper;
 using Microsoft.OpenApi.Models;
 
 namespace AuthService.API.Extensions;
@@ -42,8 +40,9 @@ public static class ServiceCollectionExtension
     {
         services.AddAutoMapper(
             typeof(UserProfile).Assembly,
-            typeof(RoleProfile).Assembly,
-            typeof(StatusProfile).Assembly
+            typeof(UserEntityProfile).Assembly,
+            typeof(RoleEntityProfile).Assembly,
+            typeof(StatusEntityProfile).Assembly
         );
     }
 

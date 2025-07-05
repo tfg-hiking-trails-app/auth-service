@@ -16,8 +16,10 @@ public class UserService : IUserService
         _mapper = mapper;
     }
     
-    public IEnumerable<UserEntityDto> GetAll() => 
-        _mapper.Map<IEnumerable<UserEntityDto>>(_userRepository.GetAll());
+    public IEnumerable<UserEntityDto> GetAll()
+    {
+        return _mapper.Map<IEnumerable<UserEntityDto>>(_userRepository.GetAll());
+    }
 
     public Task<IEnumerable<UserEntityDto>> GetAllAsync()
     {
