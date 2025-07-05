@@ -40,6 +40,8 @@ public static class ServiceCollectionExtension
     {
         services.AddAutoMapper(
             typeof(UserProfile).Assembly,
+            typeof(RoleProfile).Assembly,
+            typeof(StatusProfile).Assembly,
             typeof(UserEntityProfile).Assembly,
             typeof(RoleEntityProfile).Assembly,
             typeof(StatusEntityProfile).Assembly
