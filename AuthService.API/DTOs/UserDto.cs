@@ -1,16 +1,14 @@
-﻿using AuthService.Application.DTOs;
+﻿namespace AuthService.API.DTOs;
 
-namespace AuthService.API.DTOs;
-
-public record UserDto(
-    Guid Code,
-    RoleDto? Role,
-    StatusDto? Status,
-    string Username,
-    string Email,
-    string? FirstName,
-    string? LastName,
-    DateTime? DateOfBirth,
-    DateTime? LastLogin,
-    string? ProfilePictureUrl
-);
+public record UserDto : BaseDto
+{
+    public RoleDto? Role { get; set; }
+    public StatusDto? Status { get; set; }
+    public string? Username { get; set; }
+    public string? Email { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public DateTime? LastLogin { get; set; }
+    public string? ProfilePictureUrl { get; set; }
+}

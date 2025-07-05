@@ -34,6 +34,8 @@ public static class ServiceCollectionExtension
     private static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IStatusRepository, StatusRepository>();
     }
 
     private static void AddAutoMapper(this IServiceCollection services)

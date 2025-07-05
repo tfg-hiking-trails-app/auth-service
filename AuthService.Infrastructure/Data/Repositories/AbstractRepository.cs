@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Infrastructure.Data.Repositories;
 
-public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity 
+public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity 
 {
     protected DbContext DbContext { get; }
     protected DbSet<TEntity> Entity { get; }
 
-    protected Repository(AuthServiceDbContext dbContext)
+    protected AbstractRepository(AuthServiceDbContext dbContext)
     {
         DbContext = dbContext;
         Entity = dbContext.Set<TEntity>();
@@ -43,7 +43,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual void Update(Guid code, TEntity entity)
     {
         if (!Entity.Any(e => e.Code.Equals(code))) 
-            throw new NotFoundEntityException(code);
+            throw new NotFoundEntityException(nameof(TEntity), code);
         
         Entity.Update(entity);
         DbContext.SaveChanges();
@@ -52,8 +52,9 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual void Delete(Guid code)
     {
         var entity = Entity.FirstOrDefault(e => e.Code.Equals(code));
+        
         if (entity == null) 
-            throw new NotFoundEntityException(code);
+            throw new NotFoundEntityException(nameof(TEntity), code);
         
         Entity.Remove(entity);
         DbContext.SaveChanges();

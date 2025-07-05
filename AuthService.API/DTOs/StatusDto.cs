@@ -1,6 +1,6 @@
 ﻿namespace AuthService.API.DTOs;
 
-public record StatusDto(
-    Guid Code, 
-    string StatusValue
-);
+public record StatusDto : BaseDto
+{
+    public string? StatusValue { get; set; }
+}

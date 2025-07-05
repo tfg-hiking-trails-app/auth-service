@@ -12,7 +12,7 @@ builder.Services.ConfigureServicesCollection(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseMiddleware<AuthServiceMiddleware>();
+app.UseMiddleware<InternalErrorMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

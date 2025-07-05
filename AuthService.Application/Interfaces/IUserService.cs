@@ -1,4 +1,6 @@
 ﻿using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Create;
+using AuthService.Application.DTOs.Update;
 
 namespace AuthService.Application.Interfaces;
 
@@ -8,17 +10,17 @@ public interface IUserService
     
     Task<IEnumerable<UserEntityDto>> GetAllAsync();
     
-    UserEntityDto? GetById(int id);
+    UserEntityDto GetById(int id);
     
-    Task<UserEntityDto?> GetByIdAsync(int id);
+    Task<UserEntityDto> GetByIdAsync(int id);
     
-    UserEntityDto? GetByCode(Guid code);
+    UserEntityDto GetByCode(Guid code);
     
-    Task<UserEntityDto?> GetByCodeAsync(Guid code);
+    Task<UserEntityDto> GetByCodeAsync(Guid code);
     
-    void Create(UserEntityDto entity);
+    Guid Create(CreateUserEntityDto entity);
     
-    void Update(Guid code, UserEntityDto entity);
+    void Update(Guid code, UpdateUserEntityDto entity);
     
     void Delete(Guid code);
 }

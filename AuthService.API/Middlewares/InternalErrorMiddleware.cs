@@ -3,13 +3,13 @@ using System.Text.Json;
 
 namespace AuthService.API.Middlewares;
 
-public class AuthServiceMiddleware : IAuthServiceMiddleware
+public class InternalErrorMiddleware : IAuthServiceMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestException> _logger;
     private readonly IHostEnvironment _environment;
 
-    public AuthServiceMiddleware(RequestDelegate next, ILogger<RequestException> logger,  IHostEnvironment environment)
+    public InternalErrorMiddleware(RequestDelegate next, ILogger<RequestException> logger,  IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
@@ -31,7 +31,7 @@ public class AuthServiceMiddleware : IAuthServiceMiddleware
             var response = _environment.IsDevelopment()
                 ? new RequestException(context.Response.StatusCode, ex.Message, ex.StackTrace)
                 : new RequestException(context.Response.StatusCode, "Internal server error");
-
+            
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

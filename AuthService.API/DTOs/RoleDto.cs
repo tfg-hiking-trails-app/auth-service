@@ -1,6 +1,6 @@
 ﻿namespace AuthService.API.DTOs;
 
-public record RoleDto(
-    Guid Code, 
-    string RoleValue
-);
+public record RoleDto : BaseDto
+{
+    public string? RoleValue { get; set; }
+}
