@@ -1,10 +1,13 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Domain.Common;
+using AuthService.Domain.Entities;
 
 namespace AuthService.Domain.Interfaces;
 
 public interface IRepository<TEntity> where TEntity : BaseEntity
 {
     IEnumerable<TEntity> GetAll();
+    
+    Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken);
     
     Task<IEnumerable<TEntity>> GetAllAsync();
     

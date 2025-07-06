@@ -41,9 +41,11 @@ public static class ServiceCollectionExtension
     private static void AddAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(
+            typeof(CommonProfile).Assembly,
             typeof(UserProfile).Assembly,
             typeof(RoleProfile).Assembly,
             typeof(StatusProfile).Assembly,
+            typeof(CommonEntityProfile).Assembly,
             typeof(UserEntityProfile).Assembly,
             typeof(RoleEntityProfile).Assembly,
             typeof(StatusEntityProfile).Assembly

@@ -1,4 +1,6 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Application.Common.Extensions;
+using AuthService.Domain.Common;
+using AuthService.Domain.Entities;
 using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,16 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .Include(u => u.Role)
             .Include(u => u.Status)
             .ToListAsync();
+    }
+
+    public override async Task<IPaged<User>> GetPaged(
+        FilterData filter, 
+        CancellationToken cancellationToken)
+    {
+        return await Entity
+            .Include(u => u.Role)
+            .Include(u => u.Status)
+            .ToPageAsync(filter, cancellationToken);
     }
 
     public override User? Get(int id)
@@ -66,8 +78,6 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         
         if (Entity.Any(e => e.Email == entity.Email))
             throw new EntityAlreadyExistsException(nameof(User), "Email", entity.Email);
-        
-        
         
         base.Add(entity);
     }

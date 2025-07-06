@@ -1,6 +1,9 @@
 ﻿using AuthService.API.DTOs;
 using AuthService.API.DTOs.Create;
+using AuthService.API.DTOs.Filter;
+using AuthService.Application.Common.Pagination;
 using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Common;
 using AuthService.Application.DTOs.Create;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Exceptions;
@@ -22,52 +25,30 @@ public class UserController : ControllerBase
         _userService = userService;
         _mapper = mapper;
     }
-
+    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<UserDto>> GetAll()
+    public async Task<ActionResult<Page<UserDto>>> GetPaged(
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string orderBy = "DESC")
     {
+        var users = await _userService.GetPaged(
+            _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, orderBy)), 
+                cancellationToken
+        );
+        
         return Ok(
-            _mapper.Map<IEnumerable<UserDto>>(_userService.GetAll())
+            _mapper.Map<Page<UserDto>>(users)
         );
     }
 
-    [HttpGet("async")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserDto>> GetAllAsync()
-    {
-        return Ok(
-            _mapper.Map<IEnumerable<UserDto>>(await _userService.GetAllAsync())
-        );
-    }
-    
     [HttpGet("{code}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<UserDto> GetByCode(string code)
-    {
-        try
-        {
-            UserEntityDto userEntityDto = _userService.GetByCode(Guid.Parse(code));
-
-            return Ok(_mapper.Map<UserDto>(userEntityDto));
-        }
-        catch (NotFoundEntityException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpGet("async/{code}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserDto>> GetByCodeAsync(string code)
+    public async Task<ActionResult<UserDto>> GetByCode(string code)
     {
         try
         {

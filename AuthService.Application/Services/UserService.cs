@@ -1,7 +1,10 @@
-﻿using AuthService.Application.DTOs;
+﻿using AuthService.Application.Common.Pagination;
+using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Create;
+using AuthService.Application.DTOs.Common;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
+using AuthService.Domain.Common;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
@@ -20,8 +23,7 @@ public class UserService : IUserService
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IStatusRepository statusRepository,
-        IMapper mapper
-    )
+        IMapper mapper)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
@@ -34,6 +36,18 @@ public class UserService : IUserService
         IEnumerable<User> users = _userRepository.GetAll();
         
         return _mapper.Map<IEnumerable<UserEntityDto>>(users);
+    }
+    
+    public async Task<Page<UserEntityDto>> GetPaged(
+        FilterEntityDto filter, 
+        CancellationToken cancellationToken)
+    {
+        var users = await _userRepository.GetPaged(
+            _mapper.Map<FilterData>(filter),
+            cancellationToken
+        );
+        
+        return _mapper.Map<Page<UserEntityDto>>(users);
     }
 
     public async Task<IEnumerable<UserEntityDto>> GetAllAsync()

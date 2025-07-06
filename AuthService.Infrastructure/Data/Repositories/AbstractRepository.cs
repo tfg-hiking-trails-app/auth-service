@@ -1,4 +1,6 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Application.Common.Extensions;
+using AuthService.Domain.Common;
+using AuthService.Domain.Entities;
 using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,9 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
     
     public virtual IEnumerable<TEntity> GetAll() => 
         Entity.ToList();
+
+    public virtual async Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken) =>
+        await Entity.ToPageAsync(filter, cancellationToken);
     
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync() => 
         await Entity.ToListAsync();
