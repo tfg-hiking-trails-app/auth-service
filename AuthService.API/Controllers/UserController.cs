@@ -32,10 +32,11 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string orderBy = "DESC")
+        [FromQuery] string sortField = "id",
+        [FromQuery] string sortDirection = "asc")
     {
         var users = await _userService.GetPaged(
-            _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, orderBy)), 
+            _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, sortField, sortDirection)), 
                 cancellationToken
         );
         
