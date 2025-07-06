@@ -5,6 +5,7 @@ using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
+using AuthService.Infrastructure.Security;
 using Microsoft.OpenApi.Models;
 
 namespace AuthService.API.Extensions;
@@ -29,6 +30,8 @@ public static class ServiceCollectionExtension
     private static void AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
     }
     
     private static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
@@ -42,6 +45,7 @@ public static class ServiceCollectionExtension
     {
         services.AddAutoMapper(
             typeof(CommonProfile).Assembly,
+            typeof(AuthenticationProfile).Assembly,
             typeof(UserProfile).Assembly,
             typeof(RoleProfile).Assembly,
             typeof(StatusProfile).Assembly,

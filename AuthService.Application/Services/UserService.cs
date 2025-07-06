@@ -18,17 +18,20 @@ public class UserService : IUserService
     private readonly IRoleRepository _roleRepository;
     private readonly IStatusRepository _statusRepository;
     private readonly IMapper _mapper;
+    private readonly IPasswordHasher _passwordHasher;
 
     public UserService(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IStatusRepository statusRepository,
-        IMapper mapper)
+        IMapper mapper,
+        IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _statusRepository = statusRepository;
         _mapper = mapper;
+        _passwordHasher = passwordHasher;
     }
     
     public IEnumerable<UserEntityDto> GetAll()
@@ -112,7 +115,7 @@ public class UserService : IUserService
             throw new NotFoundEntityException(nameof(Status), statusCode);
         
         user.Code = Guid.NewGuid();
-        // hashear password
+        user.Password = _passwordHasher.HashPassword(entity.Password!);
         user.RoleId = role.Id;
         user.StatusId = status.Id;
         
@@ -135,11 +138,17 @@ public class UserService : IUserService
 
     private void CheckDataValidity(CreateUserEntityDto entity)
     {
-        if (entity.RoleCode == null || !Guid.TryParse(entity.RoleCode, out _))
+        if (entity.RoleCode != null && !Guid.TryParse(entity.RoleCode, out _))
             throw new ArgumentException("RoleCode is null or not valid Guid");
         
-        if (entity.StatusCode == null || !Guid.TryParse(entity.StatusCode, out _))
+        if (entity.StatusCode != null && !Guid.TryParse(entity.StatusCode, out _))
             throw new ArgumentException("StatusCode is null or not valid Guid");
+
+        if (string.IsNullOrWhiteSpace(entity.Password) || string.IsNullOrWhiteSpace(entity.ConfirmPassword))
+            throw new ArgumentException("Password is null or empty");
+        
+        if (!entity.Password.Equals(entity.ConfirmPassword))
+            throw new ArgumentException("Password and confirm password do not match");
     }
     
 }

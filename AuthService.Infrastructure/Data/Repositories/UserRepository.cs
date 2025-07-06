@@ -71,6 +71,17 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .FirstOrDefaultAsync(e => e.Code == code);
     }
 
+    public async Task<User?> GetByUserNameAsync(string userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return null;
+        
+        return await Entity
+            .Include(u => u.Role)
+            .Include(u => u.Status)
+            .FirstOrDefaultAsync(e => e.Username.Equals(userName));
+    }
+
     public override void Add(User entity)
     {
         if (Entity.Any(e => e.Username == entity.Username))
