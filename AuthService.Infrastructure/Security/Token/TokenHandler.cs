@@ -28,13 +28,9 @@ public class TokenHandler : ITokenHandler
         {
             new("username", user.Username)
         };
-        
-        string? secretKey = _env.IsDevelopment() 
-            ? _configuration["AccessTokenJwt:SecretKey"] 
-            : Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET_KEY");
-        string? expiry = _env.IsDevelopment()
-            ? _configuration["AccessTokenJwt:Expiry"]
-            : Environment.GetEnvironmentVariable("ACCESS_TOKEN_EXPIRY");
+
+        string? secretKey = GetProperty("AccessTokenJwt:SecretKey", "ACCESS_TOKEN_SECRET_KEY");
+        string? expiry = GetProperty("AccessTokenJwt:Expiry","ACCESS_TOKEN_EXPIRY");
         
         if (string.IsNullOrWhiteSpace(secretKey)  || string.IsNullOrWhiteSpace(expiry))
             throw new UnauthorizedAccessException("Access Token or expiry is empty");
@@ -42,11 +38,25 @@ public class TokenHandler : ITokenHandler
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
         JwtSecurityToken token = new JwtSecurityToken(
+            issuer: GetProperty("Jwt:Issuer", "ISSUER"),
+            audience: GetProperty("Jwt:Audience", "AUDIENCE"),
             claims: claims,
             expires: DateTime.Now.AddMinutes(IntegerType.FromString(expiry)),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GetProperty(string configurationKey, string propertyName)
+    {
+        string? secretKey = _env.IsDevelopment() 
+            ? _configuration[configurationKey] 
+            : Environment.GetEnvironmentVariable(propertyName);
+        
+        if (string.IsNullOrWhiteSpace(secretKey))
+            throw new UnauthorizedAccessException($"{propertyName} is empty");
+
+        return secretKey;
     }
     
 }

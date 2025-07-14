@@ -9,10 +9,12 @@ using AuthService.Application.DTOs.Create;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Exceptions;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
