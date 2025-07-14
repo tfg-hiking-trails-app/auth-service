@@ -1,7 +1,6 @@
 ﻿using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
-using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 
 namespace AuthService.Application.Services;
@@ -10,24 +9,26 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly ITokenHandler _tokenHandler;
 
-    public AuthenticationService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+    public AuthenticationService(
+        IUserRepository userRepository, 
+        IPasswordHasher passwordHasher,
+        ITokenHandler tokenHandler)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _tokenHandler = tokenHandler;
     }
     
-    public async Task<bool> Login(AuthenticationEntityDto entityDto)
+    public async Task<TokenEntityDto> Login(AuthenticationEntityDto entityDto)
     {
         User? user = await _userRepository.GetByUserNameAsync(entityDto.Username!);
         
-        if (user == null)
-            throw new NotFoundEntityException($"The user '{entityDto.Username}' does not exists");
+        if (user == null || !_passwordHasher.VerifyHashedPassword(user.Password, entityDto.Password!))
+            throw new UnauthorizedAccessException("Access Denied");
         
-        if (!_passwordHasher.VerifyHashedPassword(user.Password, entityDto.Password!))
-            throw new UnauthorizedAccessException("Wrong password");
-
-        // Devolver un token
-        return true;
+        return new TokenEntityDto()
+            .SetAccessToken(_tokenHandler.GenerateAccessToken(user));
     }
 }

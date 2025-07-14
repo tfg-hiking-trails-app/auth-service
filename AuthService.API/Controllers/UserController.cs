@@ -1,6 +1,7 @@
 ﻿using AuthService.API.DTOs;
 using AuthService.API.DTOs.Create;
 using AuthService.API.DTOs.Filter;
+using AuthService.API.Utils;
 using AuthService.Application.Common.Pagination;
 using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Common;
@@ -30,10 +31,10 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<Page<UserDto>>> GetPaged(
         CancellationToken cancellationToken,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string sortField = "id",
-        [FromQuery] string sortDirection = "asc")
+        [FromQuery] int pageNumber = Pagination.PAGE_NUMBER,
+        [FromQuery] int pageSize = Pagination.PAGE_SIZE,
+        [FromQuery] string sortField = Pagination.SORT_FIELD,
+        [FromQuery] string sortDirection = Pagination.SORT_DIRECTION)
     {
         var users = await _userService.GetPaged(
             _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, sortField, sortDirection)), 

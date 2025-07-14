@@ -26,14 +26,14 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<bool>> Login([FromBody] AuthenticationDto authenticationDto)
+    public async Task<ActionResult<TokenDto>> Login([FromBody] AuthenticationDto authenticationDto)
     {
         try
         {
-            return Ok(
-                await _authenticationService.Login(
-                    _mapper.Map<AuthenticationEntityDto>(authenticationDto))
-            );
+            TokenEntityDto tokenEntityDto = await _authenticationService.Login(
+                _mapper.Map<AuthenticationEntityDto>(authenticationDto));
+
+            return Ok(_mapper.Map<TokenDto>(tokenEntityDto));
         }
         catch (NotFoundEntityException ex)
         {

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using AuthService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

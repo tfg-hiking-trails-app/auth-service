@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using AuthService.Application.Interfaces;
 
-namespace AuthService.Infrastructure.Security;
+namespace AuthService.Infrastructure.Security.Encryption;
 
 public class PasswordHasher : IPasswordHasher
 {

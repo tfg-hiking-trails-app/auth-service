@@ -4,5 +4,5 @@ namespace AuthService.Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<bool> Login(AuthenticationEntityDto entityDto);
+    Task<TokenEntityDto> Login(AuthenticationEntityDto entityDto);
 }

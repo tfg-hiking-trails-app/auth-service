@@ -2,8 +2,8 @@
 
 public record FilterEntityDto
 {
-    public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-    public string? SortField { get; set; } = "id";
-    public string? SortDirection { get; set; } = "asc";
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public string? SortField { get; set; }
+    public string? SortDirection { get; set; }
 }

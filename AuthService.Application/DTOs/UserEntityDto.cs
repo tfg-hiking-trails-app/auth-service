@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace AuthService.Application.DTOs;
+﻿namespace AuthService.Application.DTOs;
 
 public record UserEntityDto
 {
