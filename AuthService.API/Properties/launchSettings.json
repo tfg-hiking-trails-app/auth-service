@@ -24,7 +24,11 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_HTTP_PORTS": "8080",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ACCESS_TOKEN_SECRET_KEY": "",
+        "ACCESS_TOKEN_EXPIRE": "",
+        "REFRESH_TOKEN_SECRET_KEY": "",
+        "REFRESH_TOKEN_EXPIRE": ""
       },
       "publishAllPorts": true,
       "useSSL": false

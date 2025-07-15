@@ -1,10 +1,13 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Domain.Common;
+using AuthService.Domain.Entities;
 
 namespace AuthService.Domain.Interfaces;
 
 public interface IRepository<TEntity> where TEntity : BaseEntity
 {
     IEnumerable<TEntity> GetAll();
+    
+    Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken);
     
     Task<IEnumerable<TEntity>> GetAllAsync();
     
@@ -16,9 +19,14 @@ public interface IRepository<TEntity> where TEntity : BaseEntity
 
     Task<TEntity?> GetByCodeAsync(Guid code);
     
-    void Add(TEntity entity);
+    Task Add(TEntity entity);
     
-    void Update(Guid code, TEntity entity);
+    Task Update(Guid code, TEntity entity);
     
-    void Delete(Guid code);
+    Task Delete(Guid code);
+    
+    void SaveChanges();
+    
+    Task SaveChangesAsync();
+    
 }

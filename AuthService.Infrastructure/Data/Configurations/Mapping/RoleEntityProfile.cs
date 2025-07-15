@@ -6,12 +6,12 @@ using AutoMapper;
 
 namespace AuthService.Infrastructure.Data.Configurations.Mapping;
 
-public class UserProfile : Profile
+public class RoleEntityProfile : Profile
 {
-    public UserProfile()
+    public RoleEntityProfile()
     {
-        CreateMap<User, UserEntityDto>().ReverseMap();
-        CreateMap<User, CreateUserEntityDto>().ReverseMap();
-        CreateMap<User, UpdateUserEntityDto>().ReverseMap();
+        CreateMap<RoleEntityDto, Role>().ReverseMap();
+        CreateMap<CreateRoleEntityDto, Role>().ReverseMap();
+        CreateMap<UpdateRoleEntityDto, Role>().ReverseMap();
     }
 }

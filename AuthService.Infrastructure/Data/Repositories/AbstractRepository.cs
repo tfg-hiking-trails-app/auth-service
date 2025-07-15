@@ -1,16 +1,18 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Application.Common.Extensions;
+using AuthService.Domain.Common;
+using AuthService.Domain.Entities;
 using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Infrastructure.Data.Repositories;
 
-public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity 
+public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity 
 {
     protected DbContext DbContext { get; }
     protected DbSet<TEntity> Entity { get; }
 
-    protected Repository(AuthServiceDbContext dbContext)
+    protected AbstractRepository(AuthServiceDbContext dbContext)
     {
         DbContext = dbContext;
         Entity = dbContext.Set<TEntity>();
@@ -18,6 +20,9 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     
     public virtual IEnumerable<TEntity> GetAll() => 
         Entity.ToList();
+
+    public virtual async Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken) =>
+        await Entity.ToPageAsync(filter, cancellationToken);
     
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync() => 
         await Entity.ToListAsync();
@@ -34,28 +39,41 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual async Task<TEntity?> GetByCodeAsync(Guid code) => 
         await Entity.FirstOrDefaultAsync(e => e.Code == code);
 
-    public virtual void Add(TEntity entity)
+    public virtual async Task Add(TEntity entity)
     {
+        entity.Code = Guid.NewGuid();
+        
         Entity.Add(entity);
-        DbContext.SaveChanges();
+        await DbContext.SaveChangesAsync();
     }
 
-    public virtual void Update(Guid code, TEntity entity)
+    public virtual async Task Update(Guid code, TEntity entity)
     {
         if (!Entity.Any(e => e.Code.Equals(code))) 
-            throw new NotFoundEntityException(code);
+            throw new NotFoundEntityException(nameof(TEntity), code);
         
         Entity.Update(entity);
+        await DbContext.SaveChangesAsync();
+    }
+
+    public virtual async Task Delete(Guid code)
+    {
+        var entity = Entity.FirstOrDefault(e => e.Code.Equals(code));
+        
+        if (entity is null) 
+            throw new NotFoundEntityException(nameof(TEntity), code);
+        
+        Entity.Remove(entity);
+        await DbContext.SaveChangesAsync();
+    }
+
+    public void SaveChanges()
+    {
         DbContext.SaveChanges();
     }
 
-    public virtual void Delete(Guid code)
+    public async Task SaveChangesAsync()
     {
-        var entity = Entity.FirstOrDefault(e => e.Code.Equals(code));
-        if (entity == null) 
-            throw new NotFoundEntityException(code);
-        
-        Entity.Remove(entity);
-        DbContext.SaveChanges();
+        await DbContext.SaveChangesAsync();
     }
 }

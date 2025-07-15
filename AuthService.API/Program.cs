@@ -8,11 +8,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.ConfigureServicesCollection(builder.Configuration);
+builder.Services.ConfigureServicesCollection(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
-app.UseMiddleware<AuthServiceMiddleware>();
+app.UseMiddleware<InternalErrorMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,19 +1,25 @@
-﻿using System.Reflection;
+﻿using System.Text;
+using AuthService.API.DTOs.Mapping;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
-using AutoMapper;
+using AuthService.Infrastructure.Security.Encryption;
+using AuthService.Infrastructure.Security.Token;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace AuthService.API.Extensions;
 
 public static class ServiceCollectionExtension
 {
-    public static void ConfigureServicesCollection(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureServicesCollection(
+        this IServiceCollection services, 
+        IConfiguration configuration,
+        IWebHostEnvironment environment)
     {
         services.AddRouting(options => options.LowercaseUrls = true);
         
@@ -21,32 +27,85 @@ public static class ServiceCollectionExtension
 
         services.AddAutoMapper();
         
-        services.AddServices(configuration);
+        services.AddServices();
         
-        services.AddRepositories(configuration);
+        services.AddRepositories();
+        
+        services.AddJwtBearer(configuration, environment);
         
         services.AddSwaggerGen();
     }
 
-    private static void AddServices(this IServiceCollection services, IConfiguration configuration)
+    private static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<ITokenService, TokenService>();
     }
     
-    private static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
+    private static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IStatusRepository, StatusRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
     }
 
     private static void AddAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(
+            typeof(CommonProfile).Assembly,
+            typeof(TokenProfile).Assembly,
+            typeof(AuthenticationProfile).Assembly,
             typeof(UserProfile).Assembly,
             typeof(RoleProfile).Assembly,
-            typeof(StatusProfile).Assembly
+            typeof(StatusProfile).Assembly,
+            typeof(CommonEntityProfile).Assembly,
+            typeof(UserEntityProfile).Assembly,
+            typeof(RoleEntityProfile).Assembly,
+            typeof(StatusEntityProfile).Assembly,
+            typeof(RefreshTokenEntityProfile).Assembly
         );
     }
 
+    private static void AddJwtBearer(
+        this IServiceCollection services, 
+        IConfiguration configuration, 
+        IWebHostEnvironment environment)
+    {
+        string? secretKey = environment.IsDevelopment() 
+            ? configuration["AccessTokenJwt:SecretKey"] 
+            : Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET_KEY");
+        string? issuer = environment.IsDevelopment()
+            ? configuration["Jwt:Issuer"]
+            : Environment.GetEnvironmentVariable("ISSUER");
+        string? audience = environment.IsDevelopment()
+            ? configuration["Jwt:Audience"]
+            : Environment.GetEnvironmentVariable("AUDIENCE");
+        
+        if (string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+            throw new Exception("Access token not found");
+        
+        services
+            .AddHttpContextAccessor()
+            .AddAuthorization()
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                };
+            });
+    }
+    
     private static void AddSwaggerGen(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>

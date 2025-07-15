@@ -1,24 +1,24 @@
-﻿using AuthService.Application.DTOs;
+﻿using AuthService.Application.Common.Pagination;
+using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Create;
+using AuthService.Application.DTOs.Common;
+using AuthService.Application.DTOs.Update;
 
 namespace AuthService.Application.Interfaces;
 
 public interface IUserService
 {
-    IEnumerable<UserEntityDto> GetAll();
-    
     Task<IEnumerable<UserEntityDto>> GetAllAsync();
+
+    Task<Page<UserEntityDto>> GetPagedAsync(FilterEntityDto filter, CancellationToken cancellationToken);
     
-    UserEntityDto? GetById(int id);
+    Task<UserEntityDto> GetByIdAsync(int id);
     
-    Task<UserEntityDto?> GetByIdAsync(int id);
+    Task<UserEntityDto> GetByCodeAsync(Guid code);
     
-    UserEntityDto? GetByCode(Guid code);
+    Guid Create(CreateUserEntityDto entity);
     
-    Task<UserEntityDto?> GetByCodeAsync(Guid code);
-    
-    void Create(UserEntityDto entity);
-    
-    void Update(Guid code, UserEntityDto entity);
+    void Update(Guid code, UpdateUserEntityDto entity);
     
     void Delete(Guid code);
 }
