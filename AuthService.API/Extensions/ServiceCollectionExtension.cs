@@ -7,10 +7,10 @@ using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
 using AuthService.Infrastructure.Security.Encryption;
+using AuthService.Infrastructure.Security.Token;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using TokenHandler = AuthService.Infrastructure.Security.Token.TokenHandler;
 
 namespace AuthService.API.Extensions;
 
@@ -41,7 +41,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<ITokenHandler, TokenHandler>();
+        services.AddScoped<ITokenService, TokenService>();
     }
     
     private static void AddRepositories(this IServiceCollection services)
@@ -49,6 +49,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IStatusRepository, StatusRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
     }
 
     private static void AddAutoMapper(this IServiceCollection services)
@@ -63,7 +64,8 @@ public static class ServiceCollectionExtension
             typeof(CommonEntityProfile).Assembly,
             typeof(UserEntityProfile).Assembly,
             typeof(RoleEntityProfile).Assembly,
-            typeof(StatusEntityProfile).Assembly
+            typeof(StatusEntityProfile).Assembly,
+            typeof(RefreshTokenEntityProfile).Assembly
         );
     }
 

@@ -34,14 +34,14 @@ public class UserService : IUserService
         _passwordHasher = passwordHasher;
     }
     
-    public IEnumerable<UserEntityDto> GetAll()
+    public async Task<IEnumerable<UserEntityDto>> GetAllAsync()
     {
-        IEnumerable<User> users = _userRepository.GetAll();
+        IEnumerable<User> users = await _userRepository.GetAllAsync();
         
         return _mapper.Map<IEnumerable<UserEntityDto>>(users);
     }
     
-    public async Task<Page<UserEntityDto>> GetPaged(
+    public async Task<Page<UserEntityDto>> GetPagedAsync(
         FilterEntityDto filter, 
         CancellationToken cancellationToken)
     {
@@ -53,37 +53,12 @@ public class UserService : IUserService
         return _mapper.Map<Page<UserEntityDto>>(users);
     }
 
-    public async Task<IEnumerable<UserEntityDto>> GetAllAsync()
-    {
-        IEnumerable<User> users = await _userRepository.GetAllAsync();
-        
-        return _mapper.Map<IEnumerable<UserEntityDto>>(users);
-    }
-
-    public UserEntityDto GetById(int id)
-    {
-        User? user = _userRepository.Get(id);
-        
-        return user == null 
-            ? throw new NotFoundEntityException(nameof(User), id) 
-            : _mapper.Map<UserEntityDto>(user);
-    }
-
     public async Task<UserEntityDto> GetByIdAsync(int id)
     {
         User? user = await _userRepository.GetAsync(id);
         
         return user == null
             ? throw new NotFoundEntityException(nameof(User), id)
-            : _mapper.Map<UserEntityDto>(user);
-    }
-
-    public UserEntityDto GetByCode(Guid code)
-    {
-        User? user = _userRepository.GetByCode(code);
-        
-        return user == null
-            ? throw new NotFoundEntityException(nameof(User), code)
             : _mapper.Map<UserEntityDto>(user);
     }
 

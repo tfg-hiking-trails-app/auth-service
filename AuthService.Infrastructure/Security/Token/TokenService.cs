@@ -1,8 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthService.Application.DTOs.Create;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -11,15 +14,23 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.Infrastructure.Security.Token;
 
-public class TokenHandler : ITokenHandler
+public class TokenService : ITokenService
 {
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _configuration;
+    private readonly IMapper _mapper;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    public TokenHandler(IWebHostEnvironment env, IConfiguration configuration)
+    public TokenService(
+        IWebHostEnvironment env, 
+        IConfiguration configuration,
+        IMapper mapper,
+        IRefreshTokenRepository refreshTokenRepository)
     {
         _env = env;
         _configuration = configuration;
+        _mapper = mapper;
+        _refreshTokenRepository = refreshTokenRepository;
     }
     
     public string GenerateAccessToken(User user)
@@ -44,7 +55,23 @@ public class TokenHandler : ITokenHandler
             expires: DateTime.Now.AddMinutes(IntegerType.FromString(expiry)),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new JwtSecurityTokenHandler()
+            .WriteToken(token);
+    }
+
+    public string GenerateRefreshToken(User user)
+    {
+        CreateRefreshTokenEntityDto createEntityDto = new CreateRefreshTokenEntityDto()
+        {
+            Code = Guid.NewGuid(),
+            Expiration = DateTime.UtcNow.AddDays(7),
+            RefreshTokenValue = Guid.NewGuid().ToString("N"),
+            UserId = user.Id
+        };
+
+        _refreshTokenRepository.Add(_mapper.Map<RefreshToken>(createEntityDto));
+        
+        return createEntityDto.RefreshTokenValue;
     }
 
     private string GetProperty(string configurationKey, string propertyName)

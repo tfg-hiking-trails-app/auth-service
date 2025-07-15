@@ -18,12 +18,12 @@ namespace AuthService.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class UserController : ControllerBase
+public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
     
-    public UserController(IUserService userService, IMapper mapper)
+    public UsersController(IUserService userService, IMapper mapper)
     {
         _userService = userService;
         _mapper = mapper;
@@ -38,7 +38,7 @@ public class UserController : ControllerBase
         [FromQuery] string sortField = Pagination.SORT_FIELD,
         [FromQuery] string sortDirection = Pagination.SORT_DIRECTION)
     {
-        var users = await _userService.GetPaged(
+        var users = await _userService.GetPagedAsync(
             _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, sortField, sortDirection)), 
                 cancellationToken
         );

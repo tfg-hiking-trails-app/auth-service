@@ -71,7 +71,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .FirstOrDefaultAsync(e => e.Code == code);
     }
 
-    public async Task<User?> GetByUserNameAsync(string userName)
+    public async Task<User?> GetByUserName(string userName)
     {
         if (string.IsNullOrWhiteSpace(userName))
             return null;
@@ -92,5 +92,5 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         
         base.Add(entity);
     }
-
+    
 }

@@ -2,7 +2,8 @@
 
 namespace AuthService.Application.Interfaces;
 
-public interface ITokenHandler
+public interface ITokenService
 {
     string GenerateAccessToken(User user);
+    string GenerateRefreshToken(User user);
 }

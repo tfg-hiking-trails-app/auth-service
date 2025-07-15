@@ -8,17 +8,11 @@ namespace AuthService.Application.Interfaces;
 
 public interface IUserService
 {
-    IEnumerable<UserEntityDto> GetAll();
-
-    Task<Page<UserEntityDto>> GetPaged(FilterEntityDto filter, CancellationToken cancellationToken);
-    
     Task<IEnumerable<UserEntityDto>> GetAllAsync();
-    
-    UserEntityDto GetById(int id);
+
+    Task<Page<UserEntityDto>> GetPagedAsync(FilterEntityDto filter, CancellationToken cancellationToken);
     
     Task<UserEntityDto> GetByIdAsync(int id);
-    
-    UserEntityDto GetByCode(Guid code);
     
     Task<UserEntityDto> GetByCodeAsync(Guid code);
     
