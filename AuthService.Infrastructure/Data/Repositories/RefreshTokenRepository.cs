@@ -38,10 +38,17 @@ public class RefreshTokenRepository : AbstractRepository<RefreshToken>, IRefresh
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public async Task<RefreshToken?> FindByRefreshToken(string token)
+    public async Task<RefreshToken?> FindByRefreshTokenAsync(string token)
     {
         return await Entity
             .Include(u => u.User)
             .FirstOrDefaultAsync(e => e.RefreshTokenValue == token);
+    }
+
+    public async Task<IEnumerable<RefreshToken>> GetAllValidRefreshTokensByUserAsync(Guid userCode)
+    {
+        return await Entity
+            .Where(e => e.User!.Code.Equals(userCode) && e.Active && !e.Used)
+            .ToListAsync();
     }
 }

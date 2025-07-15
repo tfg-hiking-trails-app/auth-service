@@ -19,9 +19,14 @@ public interface IRepository<TEntity> where TEntity : BaseEntity
 
     Task<TEntity?> GetByCodeAsync(Guid code);
     
-    void Add(TEntity entity);
+    Task Add(TEntity entity);
     
-    void Update(Guid code, TEntity entity);
+    Task Update(Guid code, TEntity entity);
     
-    void Delete(Guid code);
+    Task Delete(Guid code);
+    
+    void SaveChanges();
+    
+    Task SaveChangesAsync();
+    
 }

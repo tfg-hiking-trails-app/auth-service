@@ -6,7 +6,7 @@ public class GuidValidator : ValidationAttribute
 {
     public override bool IsValid(object? value)
     {
-        if (value == null || string.IsNullOrEmpty(value.ToString()))
+        if (value is null || string.IsNullOrEmpty(value.ToString()))
             return true;
         
         return Guid.TryParse(value.ToString(), out _);

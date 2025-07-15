@@ -2,7 +2,6 @@
 
 public class CreateRefreshTokenEntityDto
 {
-    public Guid Code { get; set; }
     public int UserId { get; set; }
     public string? RefreshTokenValue { get; set; }
     public bool Active { get; set; } = true;

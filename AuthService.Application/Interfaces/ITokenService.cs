@@ -1,9 +1,9 @@
-﻿using AuthService.Domain.Entities;
+﻿using AuthService.Application.DTOs;
 
 namespace AuthService.Application.Interfaces;
 
 public interface ITokenService
 {
-    string GenerateAccessToken(User user);
-    string GenerateRefreshToken(User user);
+    string GenerateAccessToken(UserEntityDto user);
+    Task<RefreshTokenEntityDto> GenerateRefreshToken(UserEntityDto user);
 }

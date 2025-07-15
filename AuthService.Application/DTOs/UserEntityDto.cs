@@ -2,6 +2,7 @@
 
 public record UserEntityDto
 {
+    public int Id { get; set; }
     public Guid Code { get; set; }
     public RoleEntityDto? Role { get; set; }
     public StatusEntityDto? Status { get; set; }

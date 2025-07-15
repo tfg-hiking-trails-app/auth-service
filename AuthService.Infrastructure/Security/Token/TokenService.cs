@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Create;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
@@ -33,11 +34,11 @@ public class TokenService : ITokenService
         _refreshTokenRepository = refreshTokenRepository;
     }
     
-    public string GenerateAccessToken(User user)
+    public string GenerateAccessToken(UserEntityDto user)
     {
         List<Claim> claims = new List<Claim>
         {
-            new("username", user.Username)
+            new("username", user.Username!)
         };
 
         string? secretKey = GetProperty("AccessTokenJwt:SecretKey", "ACCESS_TOKEN_SECRET_KEY");
@@ -59,19 +60,20 @@ public class TokenService : ITokenService
             .WriteToken(token);
     }
 
-    public string GenerateRefreshToken(User user)
+    public async Task<RefreshTokenEntityDto> GenerateRefreshToken(UserEntityDto user)
     {
         CreateRefreshTokenEntityDto createEntityDto = new CreateRefreshTokenEntityDto()
         {
-            Code = Guid.NewGuid(),
             Expiration = DateTime.UtcNow.AddDays(7),
             RefreshTokenValue = Guid.NewGuid().ToString("N"),
             UserId = user.Id
         };
 
-        _refreshTokenRepository.Add(_mapper.Map<RefreshToken>(createEntityDto));
+        RefreshToken refreshToken = _mapper.Map<RefreshToken>(createEntityDto);
         
-        return createEntityDto.RefreshTokenValue;
+        await _refreshTokenRepository.Add(refreshToken);
+        
+        return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
     }
 
     private string GetProperty(string configurationKey, string propertyName)

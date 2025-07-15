@@ -57,7 +57,7 @@ public class UserService : IUserService
     {
         User? user = await _userRepository.GetAsync(id);
         
-        return user == null
+        return user is null
             ? throw new NotFoundEntityException(nameof(User), id)
             : _mapper.Map<UserEntityDto>(user);
     }
@@ -66,7 +66,7 @@ public class UserService : IUserService
     {
         User? user = await _userRepository.GetByCodeAsync(code);
         
-        return user == null
+        return user is null
             ? throw new NotFoundEntityException(nameof(User), code)
             : _mapper.Map<UserEntityDto>(user);
     }
@@ -80,16 +80,15 @@ public class UserService : IUserService
         Guid roleCode = Guid.Parse(entity.RoleCode!);
         Role? role = _roleRepository.GetByCode(roleCode);
 
-        if (role == null)
+        if (role is null)
             throw new NotFoundEntityException(nameof(Role), roleCode);
         
         Guid statusCode = Guid.Parse(entity.StatusCode!);
         Status? status = _statusRepository.GetByCode(statusCode);
         
-        if (status == null)
+        if (status is null)
             throw new NotFoundEntityException(nameof(Status), statusCode);
         
-        user.Code = Guid.NewGuid();
         user.Password = _passwordHasher.HashPassword(entity.Password!);
         user.RoleId = role.Id;
         user.StatusId = status.Id;
@@ -113,10 +112,10 @@ public class UserService : IUserService
 
     private void CheckDataValidity(CreateUserEntityDto entity)
     {
-        if (entity.RoleCode != null && !Guid.TryParse(entity.RoleCode, out _))
+        if (entity.RoleCode is not null && !Guid.TryParse(entity.RoleCode, out _))
             throw new ArgumentException("RoleCode is null or not valid Guid");
         
-        if (entity.StatusCode != null && !Guid.TryParse(entity.StatusCode, out _))
+        if (entity.StatusCode is not null && !Guid.TryParse(entity.StatusCode, out _))
             throw new ArgumentException("StatusCode is null or not valid Guid");
 
         if (string.IsNullOrWhiteSpace(entity.Password) || string.IsNullOrWhiteSpace(entity.ConfirmPassword))

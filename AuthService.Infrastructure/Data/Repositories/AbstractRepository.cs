@@ -39,29 +39,41 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
     public virtual async Task<TEntity?> GetByCodeAsync(Guid code) => 
         await Entity.FirstOrDefaultAsync(e => e.Code == code);
 
-    public virtual void Add(TEntity entity)
+    public virtual async Task Add(TEntity entity)
     {
+        entity.Code = Guid.NewGuid();
+        
         Entity.Add(entity);
-        DbContext.SaveChanges();
+        await DbContext.SaveChangesAsync();
     }
 
-    public virtual void Update(Guid code, TEntity entity)
+    public virtual async Task Update(Guid code, TEntity entity)
     {
         if (!Entity.Any(e => e.Code.Equals(code))) 
             throw new NotFoundEntityException(nameof(TEntity), code);
         
         Entity.Update(entity);
-        DbContext.SaveChanges();
+        await DbContext.SaveChangesAsync();
     }
 
-    public virtual void Delete(Guid code)
+    public virtual async Task Delete(Guid code)
     {
         var entity = Entity.FirstOrDefault(e => e.Code.Equals(code));
         
-        if (entity == null) 
+        if (entity is null) 
             throw new NotFoundEntityException(nameof(TEntity), code);
         
         Entity.Remove(entity);
+        await DbContext.SaveChangesAsync();
+    }
+
+    public void SaveChanges()
+    {
         DbContext.SaveChanges();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await DbContext.SaveChangesAsync();
     }
 }

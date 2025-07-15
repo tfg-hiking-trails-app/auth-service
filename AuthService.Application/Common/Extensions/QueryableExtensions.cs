@@ -18,11 +18,11 @@ public static class QueryableExtensions
         if (filter.PageSize < 1)
             throw new ArgumentException("PageSize cannot be less than 1");
 
-        if (filter.SortField != null)
+        if (filter.SortField is not null)
         {
             source = source.OrderByProperty(
                 filter.SortField, 
-                filter.SortDirection != null && filter.SortDirection.ToLower().Equals("desc"));
+                filter.SortDirection is not null && filter.SortDirection.ToLower().Equals("desc"));
         }
         
         int totalItems = await source.CountAsync();
