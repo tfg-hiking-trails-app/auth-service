@@ -2,7 +2,7 @@
 
 namespace AuthService.Application.Interfaces;
 
-public interface ITokenService
+public interface ITokenManager
 {
     string GenerateAccessToken(UserEntityDto user);
     Task<RefreshTokenEntityDto> GenerateRefreshToken(UserEntityDto user);

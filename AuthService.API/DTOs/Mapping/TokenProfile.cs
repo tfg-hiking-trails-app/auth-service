@@ -7,6 +7,6 @@ public class TokenProfile : Profile
 {
     public TokenProfile()
     {
-        CreateMap<TokenDto, TokenEntityDto>().ReverseMap();
+        CreateMap<TokenResponseDto, TokenResponseEntityDto>().ReverseMap();
     }
 }

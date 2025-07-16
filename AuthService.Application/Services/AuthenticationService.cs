@@ -11,24 +11,24 @@ public class AuthenticationService : IAuthenticationService
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly ITokenService _tokenService;
+    private readonly ITokenManager _tokenManager;
     private readonly IMapper _mapper;
 
     public AuthenticationService(
         IUserRepository userRepository, 
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
-        ITokenService tokenService,
+        ITokenManager tokenManager,
         IMapper mapper)
     {
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
-        _tokenService = tokenService;
+        _tokenManager = tokenManager;
         _mapper = mapper;
     }
     
-    public async Task<TokenEntityDto> Login(AuthenticationEntityDto entityDto)
+    public async Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto)
     {
         User? user = await _userRepository.GetByUserName(entityDto.Username!);
         
@@ -37,20 +37,20 @@ public class AuthenticationService : IAuthenticationService
 
         UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
         
-        return new TokenEntityDto()
+        return new TokenResponseEntityDto()
         {
-            AccessToken = _tokenService.GenerateAccessToken(userEntityDto),
-            RefreshToken = (await _tokenService.GenerateRefreshToken(userEntityDto)).RefreshTokenValue
+            AccessToken = _tokenManager.GenerateAccessToken(userEntityDto),
+            RefreshToken = (await _tokenManager.GenerateRefreshToken(userEntityDto)).RefreshTokenValue
         };
     }
 
-    public async Task<TokenEntityDto> Refresh(TokenEntityDto tokenDto)
+    public async Task<TokenResponseEntityDto> Refresh(TokenResponseEntityDto tokenResponseDto)
     {
-        if (tokenDto.RefreshToken is null)
+        if (tokenResponseDto.RefreshToken is null)
             throw new ArgumentNullException($"RefreshToken");
         
         RefreshToken? refreshToken = await _refreshTokenRepository
-            .FindByRefreshTokenAsync(tokenDto.RefreshToken!);
+            .FindByRefreshTokenAsync(tokenResponseDto.RefreshToken!);
         
         if (refreshToken is null || !refreshToken.Active || refreshToken.Expiration <= DateTime.UtcNow)
             throw new UnauthorizedAccessException("Access Denied");
@@ -70,11 +70,11 @@ public class AuthenticationService : IAuthenticationService
             throw new UnauthorizedAccessException("Access Denied");
         
         UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
-        string newAccessToken = _tokenService.GenerateAccessToken(userEntityDto);
+        string newAccessToken = _tokenManager.GenerateAccessToken(userEntityDto);
         
-        RefreshTokenEntityDto refreshTokenEntityDto = await _tokenService.GenerateRefreshToken(userEntityDto);
+        RefreshTokenEntityDto refreshTokenEntityDto = await _tokenManager.GenerateRefreshToken(userEntityDto);
         
-        return new TokenEntityDto()
+        return new TokenResponseEntityDto()
         {
             AccessToken = newAccessToken,
             RefreshToken = refreshTokenEntityDto.RefreshTokenValue

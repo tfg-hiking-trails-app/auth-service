@@ -15,14 +15,14 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.Infrastructure.Security.Token;
 
-public class TokenService : ITokenService
+public class TokenManager : ITokenManager
 {
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    public TokenService(
+    public TokenManager(
         IWebHostEnvironment env, 
         IConfiguration configuration,
         IMapper mapper,

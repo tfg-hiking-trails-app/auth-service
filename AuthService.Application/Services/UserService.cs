@@ -71,7 +71,7 @@ public class UserService : IUserService
             : _mapper.Map<UserEntityDto>(user);
     }
 
-    public Guid Create(CreateUserEntityDto entity)
+    public async Task<Guid> Create(CreateUserEntityDto entity)
     {
         CheckDataValidity(entity);
         
@@ -93,21 +93,23 @@ public class UserService : IUserService
         user.RoleId = role.Id;
         user.StatusId = status.Id;
         
-        _userRepository.Add(user);
+        await _userRepository.Add(user);
         
         return user.Code;
     }
 
-    public void Update(Guid code, UpdateUserEntityDto entity)
+    public async Task<Guid> Update(UpdateUserEntityDto entity)
     {
         User? user = _mapper.Map<User>(entity);
         
-        _userRepository.Update(code, user);
+        await _userRepository.Update(entity.Code, user);
+        
+        return user.Code;
     }
 
-    public void Delete(Guid code)
+    public async Task Delete(Guid code)
     {
-        _userRepository.Delete(code);
+        await _userRepository.Delete(code);
     }
 
     private void CheckDataValidity(CreateUserEntityDto entity)

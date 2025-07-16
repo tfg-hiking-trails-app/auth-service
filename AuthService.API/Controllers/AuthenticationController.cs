@@ -27,14 +27,14 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TokenDto>> Login([FromBody] AuthenticationDto authenticationDto)
+    public async Task<ActionResult<TokenResponseDto>> Login([FromBody] AuthenticationDto authenticationDto)
     {
         try
         {
-            TokenEntityDto tokenEntityDto = await _authenticationService.Login(
+            TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Login(
                 _mapper.Map<AuthenticationEntityDto>(authenticationDto));
 
-            return Ok(_mapper.Map<TokenDto>(tokenEntityDto));
+            return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
         }
         catch (NotFoundEntityException ex)
         {
@@ -56,14 +56,14 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TokenDto>> Refresh([FromBody] TokenDto tokenDto)
+    public async Task<ActionResult<TokenResponseDto>> Refresh([FromBody] TokenResponseDto tokenResponseDto)
     {
         try
         {
-            TokenEntityDto tokenEntityDto = await _authenticationService.Refresh(
-                _mapper.Map<TokenEntityDto>(tokenDto));
+            TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Refresh(
+                _mapper.Map<TokenResponseEntityDto>(tokenResponseDto));
 
-            return Ok(_mapper.Map<TokenDto>(tokenEntityDto));
+            return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
         }
         catch (NotFoundEntityException ex)
         {
