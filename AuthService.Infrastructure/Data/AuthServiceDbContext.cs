@@ -17,10 +17,12 @@ namespace AuthService.Infrastructure.Data
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            string defaultConnection = GetDefaultConnectionToDatabase();
+            
             optionsBuilder
                 .UseMySql(
-                    _configuration.GetConnectionString("DefaultConnection"),
-                    new MySqlServerVersion(new Version(12, 0, 1))
+                    defaultConnection,
+                    ServerVersion.AutoDetect(defaultConnection)
                 )
                 .EnableSensitiveDataLogging()
                 .LogTo(Console.WriteLine, LogLevel.Information);
@@ -32,6 +34,16 @@ namespace AuthService.Infrastructure.Data
 
             // Searches for entities that implement an entity configuration
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
+
+        private string GetDefaultConnectionToDatabase()
+        {
+            string server = Environment.GetEnvironmentVariable("MARIADB_SERVER") ?? "";
+            string database = Environment.GetEnvironmentVariable("MARIADB_DATABASE") ?? "";
+            string user = Environment.GetEnvironmentVariable("MARIADB_USER") ?? "";
+            string password = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? "";
+            
+            return $"Server={server};Database={database};User={user};Password={password};TreatTinyAsBoolean=true;";
         }
     }
 }
