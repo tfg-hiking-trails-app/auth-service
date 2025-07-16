@@ -2,8 +2,9 @@
 
 public record UpdateUserEntityDto
 {
-    public string? RoleCode { get; set; }
-    public string? StatusCode { get; set; }
+    public Guid Code { get; init; }
+    public Guid? RoleCode { get; set; }
+    public Guid? StatusCode { get; set; }
     public string? Username { get; set; }
     public string? Email { get; set; }
     public string? Password { get; set; }

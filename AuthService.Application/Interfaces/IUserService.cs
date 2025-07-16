@@ -16,9 +16,9 @@ public interface IUserService
     
     Task<UserEntityDto> GetByCodeAsync(Guid code);
     
-    Guid Create(CreateUserEntityDto entity);
+    Task<Guid> Create(CreateUserEntityDto entity);
     
-    void Update(Guid code, UpdateUserEntityDto entity);
+    Task<Guid> Update(UpdateUserEntityDto entity);
     
-    void Delete(Guid code);
+    Task Delete(Guid code);
 }
