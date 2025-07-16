@@ -1,5 +1,4 @@
-﻿using System.Text;
-using AuthService.API.DTOs.Mapping;
+﻿using AuthService.API.DTOs.Mapping;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
 using AuthService.Domain.Interfaces;
@@ -8,18 +7,13 @@ using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
 using AuthService.Infrastructure.Security.Encryption;
 using AuthService.Infrastructure.Security.Token;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace AuthService.API.Extensions;
 
 public static class ServiceCollectionExtension
 {
-    public static void ConfigureServicesCollection(
-        this IServiceCollection services, 
-        IConfiguration configuration,
-        IWebHostEnvironment environment)
+    public static void ConfigureServicesCollection(this IServiceCollection services)
     {
         services.AddRouting(options => options.LowercaseUrls = true);
         
@@ -30,8 +24,6 @@ public static class ServiceCollectionExtension
         services.AddServices();
         
         services.AddRepositories();
-        
-        services.AddJwtBearer(configuration, environment);
         
         services.AddSwaggerGen();
     }
@@ -67,43 +59,6 @@ public static class ServiceCollectionExtension
             typeof(StatusEntityProfile).Assembly,
             typeof(RefreshTokenEntityProfile).Assembly
         );
-    }
-
-    private static void AddJwtBearer(
-        this IServiceCollection services, 
-        IConfiguration configuration, 
-        IWebHostEnvironment environment)
-    {
-        string? secretKey = environment.IsDevelopment() 
-            ? configuration["AccessTokenJwt:SecretKey"] 
-            : Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET_KEY");
-        string? issuer = environment.IsDevelopment()
-            ? configuration["Jwt:Issuer"]
-            : Environment.GetEnvironmentVariable("ISSUER");
-        string? audience = environment.IsDevelopment()
-            ? configuration["Jwt:Audience"]
-            : Environment.GetEnvironmentVariable("AUDIENCE");
-        
-        if (string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
-            throw new Exception("Access token not found");
-        
-        services
-            .AddHttpContextAccessor()
-            .AddAuthorization()
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-                };
-            });
     }
     
     private static void AddSwaggerGen(this IServiceCollection services)
