@@ -41,7 +41,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITokenManager, TokenManager>();
     }
     
     private static void AddRepositories(this IServiceCollection services)

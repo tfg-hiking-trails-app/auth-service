@@ -4,7 +4,7 @@ namespace AuthService.Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<TokenEntityDto> Login(AuthenticationEntityDto entityDto);
+    Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto);
 
-    Task<TokenEntityDto> Refresh(TokenEntityDto tokenDto);
+    Task<TokenResponseEntityDto> Refresh(TokenResponseEntityDto tokenResponseDto);
 }
