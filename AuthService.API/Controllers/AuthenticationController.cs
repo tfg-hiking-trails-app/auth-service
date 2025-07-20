@@ -94,6 +94,7 @@ public class AuthenticationController : ControllerBase
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Logout()
     {
         try
@@ -110,6 +111,10 @@ public class AuthenticationController : ControllerBase
         catch (NotFoundEntityException ex)
         {
             return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
