@@ -7,4 +7,6 @@ public interface IAuthenticationService
     Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto);
 
     Task<TokenResponseEntityDto> Refresh(string token);
+    
+    Task InvalidateRefreshToken(string token);
 }

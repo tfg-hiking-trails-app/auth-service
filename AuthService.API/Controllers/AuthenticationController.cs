@@ -91,26 +91,27 @@ public class AuthenticationController : ControllerBase
         }
     }
     
-    /*[HttpPost("logout")]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Logout()
     {
-        var rt = Request.Cookies["refresh_token"];
-        if (!string.IsNullOrEmpty(rt))
+        try
         {
-            _authenticationService.InvalidateRefreshToken(rt);
+            string? refreshToken = Request.Cookies["refresh_token"];
+        
+            if (!string.IsNullOrEmpty(refreshToken))
+                _authenticationService.InvalidateRefreshToken(refreshToken);
+
+            Response.Cookies.Append("refresh_token", "", GetCookieOptions());
+
+            return Ok();
         }
-
-        Response.Cookies.Append("refresh_token", string.Empty, new CookieOptions
+        catch (NotFoundEntityException ex)
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = "/api/auth/refresh",
-            Expires = DateTimeOffset.UtcNow.AddDays(-1)
-        });
-
-        return Ok();
-    }*/
+            return NotFound(ex.Message);
+        }
+    }
 
     private CookieOptions GetCookieOptions()
     {

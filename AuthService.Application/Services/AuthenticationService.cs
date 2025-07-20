@@ -1,6 +1,7 @@
 ﻿using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
 
@@ -75,6 +76,18 @@ public class AuthenticationService : IAuthenticationService
             AccessToken = newAccessToken,
             RefreshToken = refreshTokenEntityDto.RefreshTokenValue
         };
+    }
+
+    public async Task InvalidateRefreshToken(string token)
+    {
+        RefreshToken? refreshToken = await _refreshTokenRepository.FindByRefreshTokenAsync(token);
+
+        if (string.IsNullOrEmpty(refreshToken?.RefreshTokenValue))
+            throw new NotFoundEntityException(nameof(RefreshToken), "refreshToken", token);
+
+        refreshToken.Active = false;
+
+        await _refreshTokenRepository.SaveChangesAsync();
     }
 
     private async Task InvalidateAllUserTokens(User user)
