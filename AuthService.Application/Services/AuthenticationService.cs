@@ -44,13 +44,9 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
-    public async Task<TokenResponseEntityDto> Refresh(TokenResponseEntityDto tokenResponseDto)
+    public async Task<TokenResponseEntityDto> Refresh(string token)
     {
-        if (tokenResponseDto.RefreshToken is null)
-            throw new ArgumentNullException($"RefreshToken");
-        
-        RefreshToken? refreshToken = await _refreshTokenRepository
-            .FindByRefreshTokenAsync(tokenResponseDto.RefreshToken!);
+        RefreshToken? refreshToken = await _refreshTokenRepository.FindByRefreshTokenAsync(token);
         
         if (refreshToken is null || !refreshToken.Active || refreshToken.Expiration <= DateTime.UtcNow)
             throw new UnauthorizedAccessException("Access Denied");

@@ -56,9 +56,14 @@ public class TokenManager : ITokenManager
 
     public async Task<RefreshTokenEntityDto> GenerateRefreshToken(UserEntityDto user)
     {
+        string? refreshTokenExpiration = Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRE");
+        
+        if (string.IsNullOrWhiteSpace(refreshTokenExpiration))
+            throw new UnauthorizedAccessException("Refresh token expiration is empty");
+        
         CreateRefreshTokenEntityDto createEntityDto = new CreateRefreshTokenEntityDto()
         {
-            Expiration = DateTime.UtcNow.AddDays(7),
+            Expiration = DateTime.UtcNow.AddMinutes(IntegerType.FromString(refreshTokenExpiration)),
             RefreshTokenValue = Guid.NewGuid().ToString("N"),
             UserId = user.Id
         };
