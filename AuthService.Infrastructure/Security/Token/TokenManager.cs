@@ -74,5 +74,11 @@ public class TokenManager : ITokenManager
         
         return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
     }
-    
+
+    public IDictionary<string, object> GetPayloadFromJwt(string token)
+    {
+        JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+        
+        return handler.ReadJwtToken(token).Payload;
+    }
 }

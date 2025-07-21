@@ -45,25 +45,25 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
-    public async Task<TokenResponseEntityDto> Refresh(string token)
+    public async Task<TokenResponseEntityDto> Refresh(string accessToken, string refreshToken)
     {
-        RefreshToken? refreshToken = await _refreshTokenRepository.FindByRefreshTokenAsync(token);
+        RefreshToken? refreshTokenEntity = await _refreshTokenRepository.FindByRefreshTokenAsync(refreshToken);
         
-        if (refreshToken is null || !refreshToken.Active || refreshToken.Expiration <= DateTime.UtcNow)
+        if (refreshTokenEntity is null || !refreshTokenEntity.Active || refreshTokenEntity.Expiration <= DateTime.UtcNow)
             throw new UnauthorizedAccessException("Access Denied");
 
         // The refresh token has already been used implying that it may have been stolen.
-        if (refreshToken.Used)
+        if (refreshTokenEntity.Used)
         {
-            await InvalidateAllUserTokens(refreshToken.User!);
+            await InvalidateAllUserTokens(refreshTokenEntity.User!);
             throw new UnauthorizedAccessException("Access Denied");
         }
         
-        refreshToken.Used = true;
+        refreshTokenEntity.Used = true;
 
-        User? user = await _userRepository.GetAsync(refreshToken.UserId);
+        User? user = await _userRepository.GetAsync(refreshTokenEntity.UserId);
         
-        if (user is null)
+        if (user is null || !AccessTokenBelongsToUser(accessToken, user.Username))
             throw new UnauthorizedAccessException("Access Denied");
         
         UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
@@ -102,5 +102,12 @@ public class AuthenticationService : IAuthenticationService
         }
 
         await _refreshTokenRepository.SaveChangesAsync();
+    }
+
+    private bool AccessTokenBelongsToUser(string accessToken, string userName)
+    {
+        IDictionary<string, object> payload = _tokenManager.GetPayloadFromJwt(accessToken);
+        
+        return payload.ContainsKey("username") &&  payload["username"].Equals(userName);
     }
 }

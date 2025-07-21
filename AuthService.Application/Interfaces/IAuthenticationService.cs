@@ -6,7 +6,7 @@ public interface IAuthenticationService
 {
     Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto);
 
-    Task<TokenResponseEntityDto> Refresh(string token);
+    Task<TokenResponseEntityDto> Refresh(string accessToken, string refreshToken);
     
     Task InvalidateRefreshToken(string token);
 }

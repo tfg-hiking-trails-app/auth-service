@@ -4,6 +4,7 @@ using AuthService.Application.Interfaces;
 using AuthService.Domain.Exceptions;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.API.Controllers;
@@ -66,12 +67,18 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
+            string? accessToken = GetAccessTokenFromHeaders();
+            
+            if (string.IsNullOrEmpty(accessToken))
+                throw new UnauthorizedAccessException("Access token is required.");
+            
             string? oldRefreshToken = Request.Cookies["refresh_token"];
             
-            if (string.IsNullOrWhiteSpace(oldRefreshToken))
+            if (string.IsNullOrEmpty(oldRefreshToken))
                 throw new UnauthorizedAccessException("Refresh token is null or empty");
             
-            TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Refresh(oldRefreshToken);
+            TokenResponseEntityDto tokenResponseEntityDto = 
+                await _authenticationService.Refresh(accessToken, oldRefreshToken);
 
             Response.Cookies.Append("refresh_token", tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
             
@@ -116,6 +123,25 @@ public class AuthenticationController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+    
+    private string? GetAccessTokenFromHeaders()
+    {
+        StringValues authorizations = Request.Headers["Authorization"];
+
+        if (string.IsNullOrEmpty(authorizations))
+            return null;
+
+        string? value = authorizations.FirstOrDefault();
+        
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        string prefix = "Bearer ";
+
+        return value.StartsWith(prefix)
+            ? value.Substring(prefix.Length)
+            : null;
     }
 
     private CookieOptions GetCookieOptions()
