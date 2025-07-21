@@ -14,6 +14,7 @@ namespace AuthService.API.Controllers;
 [Produces("application/json")]
 public class AuthenticationController : ControllerBase
 {
+    private readonly string REFRESH_TOKEN = "refresh_token";
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
@@ -72,7 +73,7 @@ public class AuthenticationController : ControllerBase
             if (string.IsNullOrEmpty(accessToken))
                 throw new UnauthorizedAccessException("Access token is required.");
             
-            string? oldRefreshToken = Request.Cookies["refresh_token"];
+            string? oldRefreshToken = Request.Cookies[REFRESH_TOKEN];
             
             if (string.IsNullOrEmpty(oldRefreshToken))
                 throw new UnauthorizedAccessException("Refresh token is null or empty");
@@ -80,7 +81,7 @@ public class AuthenticationController : ControllerBase
             TokenResponseEntityDto tokenResponseEntityDto = 
                 await _authenticationService.Refresh(accessToken, oldRefreshToken);
 
-            Response.Cookies.Append("refresh_token", tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
+            Response.Cookies.Append(REFRESH_TOKEN, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
             
             return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
         }
@@ -106,12 +107,12 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            string? refreshToken = Request.Cookies["refresh_token"];
+            string? refreshToken = Request.Cookies[REFRESH_TOKEN];
         
             if (!string.IsNullOrEmpty(refreshToken))
                 _authenticationService.InvalidateRefreshToken(refreshToken);
 
-            Response.Cookies.Append("refresh_token", "", GetCookieOptions());
+            Response.Cookies.Append(REFRESH_TOKEN, "", GetCookieOptions());
 
             return Ok();
         }

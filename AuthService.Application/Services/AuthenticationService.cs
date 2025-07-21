@@ -108,6 +108,6 @@ public class AuthenticationService : IAuthenticationService
     {
         IDictionary<string, object> payload = _tokenManager.GetPayloadFromJwt(accessToken);
         
-        return payload.ContainsKey("username") &&  payload["username"].Equals(userName);
+        return payload.ContainsKey("username") && payload["username"].Equals(userName);
     }
 }
