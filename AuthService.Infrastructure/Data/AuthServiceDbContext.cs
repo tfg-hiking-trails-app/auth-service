@@ -40,7 +40,7 @@ namespace AuthService.Infrastructure.Data
         {
             string server = Environment.GetEnvironmentVariable("MARIADB_SERVER") ?? "";
             string database = Environment.GetEnvironmentVariable("MARIADB_DATABASE") ?? "";
-            string user = Environment.GetEnvironmentVariable("MARIADB_USER") ?? "";
+            string user = Environment.GetEnvironmentVariable("MARIADB_USER_TO_CONNECTION") ?? "";
             string password = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? "";
             
             return $"Server={server};Database={database};User={user};Password={password};TreatTinyAsBoolean=true;";
