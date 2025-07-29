@@ -7,12 +7,9 @@ namespace AuthService.Infrastructure.Data
 {
     public class AuthServiceDbContext : DbContext
     {
-        private readonly IConfiguration _configuration;
-
-        public AuthServiceDbContext(DbContextOptions<AuthServiceDbContext> options, IConfiguration configuration)
+        public AuthServiceDbContext(DbContextOptions<AuthServiceDbContext> options)
             : base(options)
         {
-            _configuration = configuration;
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -20,10 +17,7 @@ namespace AuthService.Infrastructure.Data
             string defaultConnection = GetDefaultConnectionToDatabase();
             
             optionsBuilder
-                .UseMySql(
-                    defaultConnection,
-                    ServerVersion.AutoDetect(defaultConnection)
-                )
+                .UseMySql(defaultConnection, ServerVersion.AutoDetect(defaultConnection))
                 .EnableSensitiveDataLogging()
                 .LogTo(Console.WriteLine, LogLevel.Information);
         }
