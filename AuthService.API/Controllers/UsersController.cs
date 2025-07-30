@@ -80,7 +80,7 @@ public class UsersController : ControllerBase
         {
             CreateUserEntityDto createUserEntityDto = _mapper.Map<CreateUserEntityDto>(userDto);
         
-            await _userService.Create(createUserEntityDto);
+            await _userService.CreateAsync(createUserEntityDto);
 
             return Created();
         }
@@ -107,7 +107,7 @@ public class UsersController : ControllerBase
 
             UpdateUserEntityDto updateUserEntityDto = _mapper.Map<UpdateUserEntityDto>(userDto);
 
-            Guid code = await _userService.Update(updateUserEntityDto);
+            Guid code = await _userService.UpdateAsync(updateUserEntityDto);
 
             return Ok(code);
         }
@@ -135,7 +135,7 @@ public class UsersController : ControllerBase
             if (!Guid.TryParse(code, out Guid userCode))
                 return BadRequest("Code must be Guid format");
             
-            await _userService.Delete(userCode);
+            await _userService.DeleteAsync(userCode);
             
             return NoContent();
         }

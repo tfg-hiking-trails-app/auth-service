@@ -71,7 +71,7 @@ public class UserService : IUserService
             : _mapper.Map<UserEntityDto>(user);
     }
 
-    public async Task<Guid> Create(CreateUserEntityDto entity)
+    public async Task<Guid> CreateAsync(CreateUserEntityDto entity)
     {
         CheckDataValidity(entity);
         
@@ -98,7 +98,7 @@ public class UserService : IUserService
         return user.Code;
     }
 
-    public async Task<Guid> Update(UpdateUserEntityDto entity)
+    public async Task<Guid> UpdateAsync(UpdateUserEntityDto entity)
     {
         User? user = _mapper.Map<User>(entity);
         
@@ -107,7 +107,7 @@ public class UserService : IUserService
         return user.Code;
     }
 
-    public async Task Delete(Guid code)
+    public async Task DeleteAsync(Guid code)
     {
         await _userRepository.DeleteAsync(code);
     }
