@@ -25,7 +25,7 @@ public static class QueryableExtensions
                 filter.SortDirection is not null && filter.SortDirection.ToLower().Equals("desc"));
         }
         
-        int totalItems = await source.CountAsync();
+        int totalItems = await source.CountAsync(cancellationToken: cancellationToken);
         List<T> items = await source
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)

@@ -70,7 +70,7 @@ public class TokenManager : ITokenManager
 
         RefreshToken refreshToken = _mapper.Map<RefreshToken>(createEntityDto);
         
-        await _refreshTokenRepository.Add(refreshToken);
+        await _refreshTokenRepository.AddAsync(refreshToken);
         
         return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
     }

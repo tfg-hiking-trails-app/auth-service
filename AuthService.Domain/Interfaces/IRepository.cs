@@ -7,7 +7,7 @@ public interface IRepository<TEntity> where TEntity : BaseEntity
 {
     IEnumerable<TEntity> GetAll();
     
-    Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken);
+    Task<IPaged<TEntity>> GetPagedAsync(FilterData filter, CancellationToken cancellationToken);
     
     Task<IEnumerable<TEntity>> GetAllAsync();
     
@@ -19,11 +19,11 @@ public interface IRepository<TEntity> where TEntity : BaseEntity
 
     Task<TEntity?> GetByCodeAsync(Guid code);
     
-    Task Add(TEntity entity);
+    Task AddAsync(TEntity entity);
     
-    Task Update(Guid code, TEntity entity);
+    Task UpdateAsync(Guid code, TEntity entity);
     
-    Task Delete(Guid code);
+    Task DeleteAsync(Guid code);
     
     void SaveChanges();
     

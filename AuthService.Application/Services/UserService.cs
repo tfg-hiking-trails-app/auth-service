@@ -45,7 +45,7 @@ public class UserService : IUserService
         FilterEntityDto filter, 
         CancellationToken cancellationToken)
     {
-        var users = await _userRepository.GetPaged(
+        var users = await _userRepository.GetPagedAsync(
             _mapper.Map<FilterData>(filter),
             cancellationToken
         );
@@ -93,7 +93,7 @@ public class UserService : IUserService
         user.RoleId = role.Id;
         user.StatusId = status.Id;
         
-        await _userRepository.Add(user);
+        await _userRepository.AddAsync(user);
         
         return user.Code;
     }
@@ -102,14 +102,14 @@ public class UserService : IUserService
     {
         User? user = _mapper.Map<User>(entity);
         
-        await _userRepository.Update(entity.Code, user);
+        await _userRepository.UpdateAsync(entity.Code, user);
         
         return user.Code;
     }
 
     public async Task Delete(Guid code)
     {
-        await _userRepository.Delete(code);
+        await _userRepository.DeleteAsync(code);
     }
 
     private void CheckDataValidity(CreateUserEntityDto entity)
