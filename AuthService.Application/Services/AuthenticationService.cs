@@ -1,6 +1,7 @@
 ﻿using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
 
@@ -44,29 +45,25 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
-    public async Task<TokenResponseEntityDto> Refresh(TokenResponseEntityDto tokenResponseDto)
+    public async Task<TokenResponseEntityDto> Refresh(string accessToken, string refreshToken)
     {
-        if (tokenResponseDto.RefreshToken is null)
-            throw new ArgumentNullException($"RefreshToken");
+        RefreshToken? refreshTokenEntity = await _refreshTokenRepository.FindByRefreshTokenAsync(refreshToken);
         
-        RefreshToken? refreshToken = await _refreshTokenRepository
-            .FindByRefreshTokenAsync(tokenResponseDto.RefreshToken!);
-        
-        if (refreshToken is null || !refreshToken.Active || refreshToken.Expiration <= DateTime.UtcNow)
+        if (refreshTokenEntity is null || !refreshTokenEntity.Active || refreshTokenEntity.Expiration <= DateTime.UtcNow)
             throw new UnauthorizedAccessException("Access Denied");
 
         // The refresh token has already been used implying that it may have been stolen.
-        if (refreshToken.Used)
+        if (refreshTokenEntity.Used)
         {
-            await InvalidateAllUserTokens(refreshToken.User!);
+            await InvalidateAllUserTokens(refreshTokenEntity.User!);
             throw new UnauthorizedAccessException("Access Denied");
         }
         
-        refreshToken.Used = true;
+        refreshTokenEntity.Used = true;
 
-        User? user = await _userRepository.GetAsync(refreshToken.UserId);
+        User? user = await _userRepository.GetAsync(refreshTokenEntity.UserId);
         
-        if (user is null)
+        if (user is null || !AccessTokenBelongsToUser(accessToken, user.Username))
             throw new UnauthorizedAccessException("Access Denied");
         
         UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
@@ -81,6 +78,18 @@ public class AuthenticationService : IAuthenticationService
         };
     }
 
+    public async Task InvalidateRefreshToken(string token)
+    {
+        RefreshToken? refreshToken = await _refreshTokenRepository.FindByRefreshTokenAsync(token);
+
+        if (string.IsNullOrEmpty(refreshToken?.RefreshTokenValue))
+            throw new NotFoundEntityException(nameof(RefreshToken), "refreshToken", token);
+
+        refreshToken.Active = false;
+
+        await _refreshTokenRepository.SaveChangesAsync();
+    }
+
     private async Task InvalidateAllUserTokens(User user)
     {
         IEnumerable<RefreshToken> refreshTokens = await _refreshTokenRepository
@@ -93,5 +102,12 @@ public class AuthenticationService : IAuthenticationService
         }
 
         await _refreshTokenRepository.SaveChangesAsync();
+    }
+
+    private bool AccessTokenBelongsToUser(string accessToken, string userName)
+    {
+        IDictionary<string, object> payload = _tokenManager.GetPayloadFromJwt(accessToken);
+        
+        return payload.ContainsKey("username") && payload["username"].Equals(userName);
     }
 }

@@ -21,7 +21,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
     public virtual IEnumerable<TEntity> GetAll() => 
         Entity.ToList();
 
-    public virtual async Task<IPaged<TEntity>> GetPaged(FilterData filter, CancellationToken cancellationToken) =>
+    public virtual async Task<IPaged<TEntity>> GetPagedAsync(FilterData filter, CancellationToken cancellationToken) =>
         await Entity.ToPageAsync(filter, cancellationToken);
     
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync() => 
@@ -39,7 +39,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
     public virtual async Task<TEntity?> GetByCodeAsync(Guid code) => 
         await Entity.FirstOrDefaultAsync(e => e.Code == code);
 
-    public virtual async Task Add(TEntity entity)
+    public virtual async Task AddAsync(TEntity entity)
     {
         entity.Code = Guid.NewGuid();
         
@@ -47,7 +47,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
         await DbContext.SaveChangesAsync();
     }
 
-    public virtual async Task Update(Guid code, TEntity entity)
+    public virtual async Task UpdateAsync(Guid code, TEntity entity)
     {
         if (!Entity.Any(e => e.Code.Equals(code))) 
             throw new NotFoundEntityException(nameof(TEntity), code);
@@ -56,7 +56,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where T
         await DbContext.SaveChangesAsync();
     }
 
-    public virtual async Task Delete(Guid code)
+    public virtual async Task DeleteAsync(Guid code)
     {
         var entity = Entity.FirstOrDefault(e => e.Code.Equals(code));
         

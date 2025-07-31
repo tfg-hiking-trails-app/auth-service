@@ -29,7 +29,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .ToListAsync();
     }
 
-    public override async Task<IPaged<User>> GetPaged(
+    public override async Task<IPaged<User>> GetPagedAsync(
         FilterData filter, 
         CancellationToken cancellationToken)
     {
@@ -82,7 +82,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .FirstOrDefaultAsync(e => e.Username.Equals(userName));
     }
 
-    public override async Task Add(User entity)
+    public override async Task AddAsync(User entity)
     {
         if (Entity.Any(e => e.Username == entity.Username))
             throw new EntityAlreadyExistsException(nameof(User), "Username", entity.Username);
@@ -90,7 +90,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         if (Entity.Any(e => e.Email == entity.Email))
             throw new EntityAlreadyExistsException(nameof(User), "Email", entity.Email);
         
-        await base.Add(entity);
+        await base.AddAsync(entity);
     }
     
 }

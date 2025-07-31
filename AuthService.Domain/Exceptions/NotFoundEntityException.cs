@@ -11,6 +11,11 @@ public class NotFoundEntityException : Exception
         : base($"The entity {entity} with code {code} doesn't exist")
     {
     }
+    
+    public NotFoundEntityException(string entity, string field, string value) 
+        : base($"The entity {entity} with {field} {value} doesn't exist")
+    {
+    }
 
     public NotFoundEntityException(string message) : base(message)
     {
