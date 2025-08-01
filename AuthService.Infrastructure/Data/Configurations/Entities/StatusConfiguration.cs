@@ -12,10 +12,12 @@ public class StatusConfiguration : EntityConfiguration<Status>
         base.Configure(builder);
         
         builder.ToTable("Status");
+        
         builder.Property(e => e.StatusValue)
             .IsRequired()
             .HasMaxLength(50)
             .HasColumnName("status");
+        
         builder.HasMany(d => d.Users)
             .WithOne(p => p.Status)
             .HasForeignKey(d => d.StatusId);
