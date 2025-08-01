@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\hiking-trail-common\Common.Domain\Common.Domain.csproj" />
+  </ItemGroup>
+  
 </Project>

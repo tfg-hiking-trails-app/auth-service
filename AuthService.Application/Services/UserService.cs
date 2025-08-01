@@ -1,14 +1,14 @@
-﻿using AuthService.Application.Common.Pagination;
-using AuthService.Application.DTOs;
-using AuthService.Application.DTOs.Common;
+﻿using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Create;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
-using AuthService.Domain.Common;
 using AuthService.Domain.Entities;
-using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
+using Common.Application.DTOs.Filter;
+using Common.Application.Pagination;
+using Common.Domain.Exceptions;
+using Common.Domain.Filter;
 
 namespace AuthService.Application.Services;
 

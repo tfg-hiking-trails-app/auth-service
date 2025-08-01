@@ -1,5 +1,5 @@
 using AuthService.API.Extensions;
-using AuthService.API.Middlewares;
+using Common.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

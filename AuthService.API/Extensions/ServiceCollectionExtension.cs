@@ -7,6 +7,8 @@ using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
 using AuthService.Infrastructure.Security.Encryption;
 using AuthService.Infrastructure.Security.Token;
+using Common.API.DTOs.Mapping;
+using Common.Infrastructure.Data.Configuration.Mapping;
 using Microsoft.OpenApi.Models;
 
 namespace AuthService.API.Extensions;

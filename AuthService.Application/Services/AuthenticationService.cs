@@ -1,9 +1,9 @@
 ﻿using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
-using AuthService.Domain.Exceptions;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
+using Common.Domain.Exceptions;
 
 namespace AuthService.Application.Services;
 

@@ -1,8 +1,8 @@
 ﻿using AuthService.API.DTOs;
 using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
-using AuthService.Domain.Exceptions;
 using AutoMapper;
+using Common.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualBasic.CompilerServices;
