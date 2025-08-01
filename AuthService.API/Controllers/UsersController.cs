@@ -1,16 +1,16 @@
 ﻿using AuthService.API.DTOs;
 using AuthService.API.DTOs.Create;
-using AuthService.API.DTOs.Filter;
 using AuthService.API.DTOs.Update;
-using AuthService.API.Utils;
-using AuthService.Application.Common.Pagination;
 using AuthService.Application.DTOs;
-using AuthService.Application.DTOs.Common;
 using AuthService.Application.DTOs.Create;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
-using AuthService.Domain.Exceptions;
 using AutoMapper;
+using Common.API.DTOs.Filter;
+using Common.API.Utils;
+using Common.Application.DTOs.Filter;
+using Common.Application.Pagination;
+using Common.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.API.Controllers;
@@ -33,10 +33,10 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<Page<UserDto>>> GetPaged(
         CancellationToken cancellationToken,
-        [FromQuery] int pageNumber = Pagination.PAGE_NUMBER,
-        [FromQuery] int pageSize = Pagination.PAGE_SIZE,
-        [FromQuery] string sortField = Pagination.SORT_FIELD,
-        [FromQuery] string sortDirection = Pagination.SORT_DIRECTION)
+        [FromQuery] int pageNumber = Pagination.PageNumber,
+        [FromQuery] int pageSize = Pagination.PageSize,
+        [FromQuery] string sortField = Pagination.SortField,
+        [FromQuery] string sortDirection = Pagination.SortDirection)
     {
         var users = await _userService.GetPagedAsync(
             _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, sortField, sortDirection)), 

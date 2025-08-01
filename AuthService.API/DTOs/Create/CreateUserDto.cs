@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AuthService.API.DataAnnotations;
+using Common.API.DataAnnotations;
 
 namespace AuthService.API.DTOs.Create;
 

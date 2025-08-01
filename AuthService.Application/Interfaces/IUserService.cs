@@ -1,8 +1,8 @@
-﻿using AuthService.Application.Common.Pagination;
-using AuthService.Application.DTOs;
-using AuthService.Application.DTOs.Common;
+﻿using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Create;
 using AuthService.Application.DTOs.Update;
+using Common.Application.DTOs.Filter;
+using Common.Application.Pagination;
 
 namespace AuthService.Application.Interfaces;
 

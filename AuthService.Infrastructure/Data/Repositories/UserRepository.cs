@@ -1,8 +1,10 @@
-﻿using AuthService.Application.Common.Extensions;
-using AuthService.Domain.Common;
-using AuthService.Domain.Entities;
-using AuthService.Domain.Exceptions;
+﻿using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
+using Common.Application.Extensions;
+using Common.Domain.Exceptions;
+using Common.Domain.Filter;
+using Common.Domain.Interfaces;
+using Common.Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Infrastructure.Data.Repositories;
