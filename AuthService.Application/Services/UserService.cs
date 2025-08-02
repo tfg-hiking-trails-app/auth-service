@@ -38,18 +38,16 @@ public class UserService
         CheckDataValidity(entity);
         
         User user = _mapper.Map<User>(entity);
-
-        Guid roleCode = Guid.Parse(entity.RoleCode!);
-        Role? role = await _roleRepository.GetByCodeAsync(roleCode);
+        
+        Role? role = await _roleRepository.GetByCodeAsync(entity.RoleCode);
 
         if (role is null)
-            throw new NotFoundEntityException(nameof(Role), roleCode);
+            throw new NotFoundEntityException(nameof(Role), entity.RoleCode);
         
-        Guid statusCode = Guid.Parse(entity.StatusCode!);
-        Status? status = await _statusRepository.GetByCodeAsync(statusCode);
+        Status? status = await _statusRepository.GetByCodeAsync(entity.StatusCode);
         
         if (status is null)
-            throw new NotFoundEntityException(nameof(Status), statusCode);
+            throw new NotFoundEntityException(nameof(Status), entity.StatusCode);
         
         user.Code = Guid.NewGuid();
         user.Password = _passwordHasher.HashPassword(entity.Password!);
@@ -63,11 +61,11 @@ public class UserService
 
     protected override void CheckDataValidity(CreateUserEntityDto entity)
     {
-        if (entity.RoleCode is not null && !Guid.TryParse(entity.RoleCode, out _))
-            throw new ArgumentException("RoleCode is null or not valid Guid");
+        if (entity.RoleCode == Guid.Empty)
+            throw new ArgumentException("RoleCode is not valid Guid");
         
-        if (entity.StatusCode is not null && !Guid.TryParse(entity.StatusCode, out _))
-            throw new ArgumentException("StatusCode is null or not valid Guid");
+        if (entity.StatusCode == Guid.Empty)
+            throw new ArgumentException("StatusCode is not valid Guid");
 
         if (string.IsNullOrWhiteSpace(entity.Password) || string.IsNullOrWhiteSpace(entity.ConfirmPassword))
             throw new ArgumentException("Password is null or empty");

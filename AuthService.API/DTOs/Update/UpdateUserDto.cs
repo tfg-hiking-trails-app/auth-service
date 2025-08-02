@@ -5,6 +5,7 @@ namespace AuthService.API.DTOs.Update;
 
 public record UpdateUserDto
 {
+    [Required(ErrorMessage = "Code is required")]
     [GuidValidator(ErrorMessage = "Code must be a valid GUID")]
     public Guid Code { get; init; }
     
