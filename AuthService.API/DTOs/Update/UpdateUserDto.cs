@@ -6,13 +6,13 @@ namespace AuthService.API.DTOs.Update;
 public record UpdateUserDto
 {
     [GuidValidator(ErrorMessage = "Code must be a valid GUID")]
-    public Guid? Code { get; init; }
+    public Guid Code { get; init; }
     
     [GuidValidator(ErrorMessage = "Role code must be a valid GUID")]
-    public Guid? RoleCode { get; set; }
+    public Guid RoleCode { get; set; }
 
     [GuidValidator(ErrorMessage = "Status code must be a valid GUID")]
-    public Guid? StatusCode { get; set; }
+    public Guid StatusCode { get; set; }
     
     [MaxLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
     public string? Username { get; set; }

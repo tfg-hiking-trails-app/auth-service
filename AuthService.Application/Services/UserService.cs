@@ -5,14 +5,13 @@ using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
-using Common.Application.DTOs.Filter;
-using Common.Application.Pagination;
+using Common.Application.Services;
 using Common.Domain.Exceptions;
-using Common.Domain.Filter;
 
 namespace AuthService.Application.Services;
 
-public class UserService : IUserService
+public class UserService 
+    : AbstractService<User, UserEntityDto, CreateUserEntityDto, UpdateUserEntityDto>, IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
@@ -25,7 +24,7 @@ public class UserService : IUserService
         IRoleRepository roleRepository,
         IStatusRepository statusRepository,
         IMapper mapper,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher) : base(userRepository, mapper)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
@@ -33,62 +32,26 @@ public class UserService : IUserService
         _mapper = mapper;
         _passwordHasher = passwordHasher;
     }
-    
-    public async Task<IEnumerable<UserEntityDto>> GetAllAsync()
-    {
-        IEnumerable<User> users = await _userRepository.GetAllAsync();
-        
-        return _mapper.Map<IEnumerable<UserEntityDto>>(users);
-    }
-    
-    public async Task<Page<UserEntityDto>> GetPagedAsync(
-        FilterEntityDto filter, 
-        CancellationToken cancellationToken)
-    {
-        var users = await _userRepository.GetPagedAsync(
-            _mapper.Map<FilterData>(filter),
-            cancellationToken
-        );
-        
-        return _mapper.Map<Page<UserEntityDto>>(users);
-    }
 
-    public async Task<UserEntityDto> GetByIdAsync(int id)
-    {
-        User? user = await _userRepository.GetAsync(id);
-        
-        return user is null
-            ? throw new NotFoundEntityException(nameof(User), id)
-            : _mapper.Map<UserEntityDto>(user);
-    }
-
-    public async Task<UserEntityDto> GetByCodeAsync(Guid code)
-    {
-        User? user = await _userRepository.GetByCodeAsync(code);
-        
-        return user is null
-            ? throw new NotFoundEntityException(nameof(User), code)
-            : _mapper.Map<UserEntityDto>(user);
-    }
-
-    public async Task<Guid> CreateAsync(CreateUserEntityDto entity)
+    public override async Task<Guid> CreateAsync(CreateUserEntityDto entity)
     {
         CheckDataValidity(entity);
         
         User user = _mapper.Map<User>(entity);
 
         Guid roleCode = Guid.Parse(entity.RoleCode!);
-        Role? role = _roleRepository.GetByCode(roleCode);
+        Role? role = await _roleRepository.GetByCodeAsync(roleCode);
 
         if (role is null)
             throw new NotFoundEntityException(nameof(Role), roleCode);
         
         Guid statusCode = Guid.Parse(entity.StatusCode!);
-        Status? status = _statusRepository.GetByCode(statusCode);
+        Status? status = await _statusRepository.GetByCodeAsync(statusCode);
         
         if (status is null)
             throw new NotFoundEntityException(nameof(Status), statusCode);
         
+        user.Code = Guid.NewGuid();
         user.Password = _passwordHasher.HashPassword(entity.Password!);
         user.RoleId = role.Id;
         user.StatusId = status.Id;
@@ -98,21 +61,7 @@ public class UserService : IUserService
         return user.Code;
     }
 
-    public async Task<Guid> UpdateAsync(UpdateUserEntityDto entity)
-    {
-        User? user = _mapper.Map<User>(entity);
-        
-        await _userRepository.UpdateAsync(entity.Code, user);
-        
-        return user.Code;
-    }
-
-    public async Task DeleteAsync(Guid code)
-    {
-        await _userRepository.DeleteAsync(code);
-    }
-
-    private void CheckDataValidity(CreateUserEntityDto entity)
+    protected override void CheckDataValidity(CreateUserEntityDto entity)
     {
         if (entity.RoleCode is not null && !Guid.TryParse(entity.RoleCode, out _))
             throw new ArgumentException("RoleCode is null or not valid Guid");

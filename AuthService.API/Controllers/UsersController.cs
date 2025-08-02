@@ -102,12 +102,9 @@ public class UsersController : ControllerBase
     {
         try
         {
-            if (userDto.Code is null)
-                return BadRequest("Code is null");
-
             UpdateUserEntityDto updateUserEntityDto = _mapper.Map<UpdateUserEntityDto>(userDto);
 
-            Guid code = await _userService.UpdateAsync(updateUserEntityDto);
+            Guid code = await _userService.UpdateAsync(userDto.Code, updateUserEntityDto);
 
             return Ok(code);
         }
