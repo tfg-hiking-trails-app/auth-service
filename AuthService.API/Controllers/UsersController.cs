@@ -38,14 +38,12 @@ public class UsersController : ControllerBase
         [FromQuery] string sortField = Pagination.SortField,
         [FromQuery] string sortDirection = Pagination.SortDirection)
     {
-        var users = await _userService.GetPagedAsync(
-            _mapper.Map<FilterEntityDto>(new FilterDto(pageNumber, pageSize, sortField, sortDirection)), 
-                cancellationToken
-        );
+        FilterDto filter = new FilterDto(pageNumber, pageSize, sortField, sortDirection);
         
-        return Ok(
-            _mapper.Map<Page<UserDto>>(users)
-        );
+        Page<UserEntityDto> users = await _userService
+            .GetPagedAsync(_mapper.Map<FilterEntityDto>(filter), cancellationToken);
+        
+        return Ok(_mapper.Map<Page<UserDto>>(users));
     }
 
     [HttpGet("{code}")]
@@ -126,13 +124,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(code))
-                return BadRequest("Code is null or empty");
-            
-            if (!Guid.TryParse(code, out Guid userCode))
-                return BadRequest("Code must be Guid format");
-            
-            await _userService.DeleteAsync(userCode);
+            await _userService.DeleteAsync(Guid.Parse(code));
             
             return NoContent();
         }
