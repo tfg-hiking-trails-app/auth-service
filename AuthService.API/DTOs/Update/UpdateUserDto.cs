@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Common.API.DataAnnotations;
+using Common.API.DTOs.Update;
 
 namespace AuthService.API.DTOs.Update;
 
-public record UpdateUserDto
+public record UpdateUserDto : UpdateBaseDto
 {
     [Required(ErrorMessage = "Code is required")]
     [GuidValidator(ErrorMessage = "Code must be a valid GUID")]

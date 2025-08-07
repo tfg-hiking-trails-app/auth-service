@@ -1,6 +1,8 @@
-﻿namespace AuthService.Application.DTOs.Create;
+﻿using Common.Application.DTOs.Create;
 
-public record CreateUserEntityDto
+namespace AuthService.Application.DTOs.Create;
+
+public record CreateUserEntityDto : CreateBaseEntityDto
 {
     public Guid RoleCode { get; set; }
     public Guid StatusCode { get; set; }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Common.API.DataAnnotations;
+using Common.API.DTOs.Create;
 
 namespace AuthService.API.DTOs.Create;
 
-public record CreateUserDto
+public record CreateUserDto : CreateBaseDto
 {
     [Required(ErrorMessage = "Role code is required")]
     [GuidValidator(ErrorMessage = "Role code must be a valid GUID")]

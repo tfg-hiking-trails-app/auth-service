@@ -1,6 +1,8 @@
-﻿namespace AuthService.Application.DTOs.Create;
+﻿using Common.Application.DTOs.Create;
 
-public record CreateStatusEntityDto
+namespace AuthService.Application.DTOs.Create;
+
+public record CreateStatusEntityDto : CreateBaseEntityDto
 {
     public string? StatusValue { get; set; }
 }

@@ -1,7 +1,8 @@
-﻿namespace AuthService.Application.DTOs;
+﻿using Common.Application.DTOs;
 
-public record StatusEntityDto
+namespace AuthService.Application.DTOs;
+
+public record StatusEntityDto : BaseEntityDto
 {
-    public Guid Code { get; set; }
     public string? StatusValue { get; set; }
 }
