@@ -27,10 +27,10 @@ public class TokenManager : ITokenManager
     
     public string GenerateAccessToken(UserEntityDto user)
     {
-        List<Claim> claims = new List<Claim>
-        {
-            new("username", user.Username!)
-        };
+        List<Claim> claims = [
+            new("username", user.Username!),
+            new("userCode", user.Code.ToString())
+        ];
 
         string? secretKey = Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET_KEY");
         string? expiry = Environment.GetEnvironmentVariable("ACCESS_TOKEN_EXPIRE");
