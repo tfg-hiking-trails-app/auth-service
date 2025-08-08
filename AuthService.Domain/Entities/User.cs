@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Domain.Entities;
 
@@ -53,6 +54,10 @@ public class User : BaseEntity
     [MaxLength(255)]
     [Column("profile_picture_url")]
     public string? ProfilePictureUrl { get; set; }
+    
+    [DefaultValue(false)]
+    [Column("deleted")]
+    public bool Deleted { get; set; }
     
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

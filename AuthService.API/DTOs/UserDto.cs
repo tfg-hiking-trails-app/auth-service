@@ -13,4 +13,5 @@ public record UserDto : BaseDto
     public DateTime? DateOfBirth { get; set; }
     public DateTime? LastLogin { get; set; }
     public string? ProfilePictureUrl { get; set; }
+    public bool Deleted { get; set; }
 }

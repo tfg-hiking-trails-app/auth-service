@@ -6,10 +6,6 @@ namespace AuthService.API.DTOs.Update;
 
 public record UpdateUserDto : UpdateBaseDto
 {
-    [Required(ErrorMessage = "Code is required")]
-    [GuidValidator(ErrorMessage = "Code must be a valid GUID")]
-    public Guid Code { get; init; }
-    
     [GuidValidator(ErrorMessage = "Role code must be a valid GUID")]
     public Guid RoleCode { get; set; }
 
@@ -42,4 +38,6 @@ public record UpdateUserDto : UpdateBaseDto
     
     [MaxLength(255, ErrorMessage = "Profile picture url cannot exceed 255 characters")]
     public string? ProfilePictureUrl { get; set; }
+    
+    public bool? Deleted { get; set; }
 }
