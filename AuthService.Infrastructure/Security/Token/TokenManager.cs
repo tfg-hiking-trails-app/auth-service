@@ -12,7 +12,7 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.Infrastructure.Security.Token;
 
-public class TokenManager : ITokenManager
+public class TokenManager : Common.Infrastructure.Security.Tokens.TokenManager, ITokenManager
 {
     private readonly IMapper _mapper;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
@@ -74,11 +74,5 @@ public class TokenManager : ITokenManager
         
         return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
     }
-
-    public IDictionary<string, object> GetPayloadFromJwt(string token)
-    {
-        JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-        
-        return handler.ReadJwtToken(token).Payload;
-    }
+    
 }
