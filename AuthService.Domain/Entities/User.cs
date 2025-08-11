@@ -37,23 +37,8 @@ public class User : BaseEntity
     [Column("password")]
     public string Password { get; set; } = string.Empty;
 
-    [MaxLength(50)]
-    [Column("first_name")]
-    public string? FirstName { get; set; }
-
-    [MaxLength(50)]
-    [Column("last_name")]
-    public string? LastName { get; set; }
-
-    [Column("date_of_birth", TypeName = "date")]
-    public DateTime? DateOfBirth { get; set; }
-
     [Column("last_login", TypeName = "timestamp")]
     public DateTime? LastLogin { get; set; }
-
-    [MaxLength(255)]
-    [Column("profile_picture_url")]
-    public string? ProfilePictureUrl { get; set; }
     
     [DefaultValue(false)]
     [Column("deleted")]

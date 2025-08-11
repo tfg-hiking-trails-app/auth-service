@@ -36,24 +36,8 @@ public class UserConfiguration : EntityConfiguration<User>
             .HasMaxLength(255)
             .HasColumnName("password");
         
-        builder.Property(e => e.FirstName)
-            .HasMaxLength(50)
-            .HasColumnName("first_name");
-        
-        builder.Property(e => e.LastName)
-            .HasMaxLength(50)
-            .HasColumnName("last_name");
-        
-        builder.Property(e => e.DateOfBirth)
-            .HasColumnType("date")
-            .HasColumnName("date_of_birth");
-        
         builder.Property(e => e.LastLogin)
             .HasColumnType("timestamp")
             .HasColumnName("last_login");
-        
-        builder.Property(e => e.ProfilePictureUrl)
-            .HasMaxLength(255)
-            .HasColumnName("profile_picture_url");
     }
 }

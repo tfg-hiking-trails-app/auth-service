@@ -10,9 +10,5 @@ public record CreateUserEntityDto : CreateBaseEntityDto
     public required string Email { get; set; }
     public required string Password { get; set; }
     public required string ConfirmPassword { get; set; }
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public DateTime? DateOfBirth { get; set; }
     public DateTime? LastLogin { get; set; }
-    public string? ProfilePictureUrl { get; set; }
 }

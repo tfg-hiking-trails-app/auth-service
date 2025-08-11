@@ -24,20 +24,8 @@ public record UpdateUserDto : UpdateBaseDto
     [MaxLength(255, ErrorMessage = "Confirm password cannot exceed 255 characters")]
     public string? ConfirmPassword { get; set; }
     
-    [MaxLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
-    public string? FirstName { get; set; }
-    
-    [MaxLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
-    public string? LastName { get; set; }
-    
-    [DataType(DataType.DateTime)]
-    public DateTime? DateOfBirth { get; set; }
-    
     [DataType(DataType.DateTime)]
     public DateTime? LastLogin { get; set; }
-    
-    [MaxLength(255, ErrorMessage = "Profile picture url cannot exceed 255 characters")]
-    public string? ProfilePictureUrl { get; set; }
     
     public bool? Deleted { get; set; }
 }
