@@ -12,20 +12,11 @@ public record UpdateUserDto : UpdateBaseDto
     [GuidValidator(ErrorMessage = "Status code must be a valid GUID")]
     public Guid StatusCode { get; set; }
     
-    [MaxLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
-    public string? Username { get; set; }
-    
-    [MaxLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
-    public string? Email { get; set; }
-    
     [MaxLength(255, ErrorMessage = "Password cannot exceed 255 characters")]
     public string? Password { get; set; }
     
     [MaxLength(255, ErrorMessage = "Confirm password cannot exceed 255 characters")]
     public string? ConfirmPassword { get; set; }
-    
-    [DataType(DataType.DateTime)]
-    public DateTime? LastLogin { get; set; }
     
     public bool? Deleted { get; set; }
 }
