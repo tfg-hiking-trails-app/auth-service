@@ -70,6 +70,7 @@ public class TokenManager : Common.Infrastructure.Security.Tokens.TokenManager, 
 
         RefreshToken refreshToken = _mapper.Map<RefreshToken>(createEntityDto);
         
+        refreshToken.Code = Guid.NewGuid();
         await _refreshTokenRepository.AddAsync(refreshToken);
         
         return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
