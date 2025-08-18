@@ -5,7 +5,6 @@ using AutoMapper;
 using Common.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.API.Controllers;
 
@@ -14,7 +13,7 @@ namespace AuthService.API.Controllers;
 [Produces("application/json")]
 public class AuthenticationController : ControllerBase
 {
-    private readonly string REFRESH_TOKEN = "refresh_token";
+    private const string RefreshToken = "refresh_token";
     private readonly IAuthenticationService _authenticationService;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
@@ -41,7 +40,7 @@ public class AuthenticationController : ControllerBase
             TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Login(
                 _mapper.Map<AuthenticationEntityDto>(authenticationDto));
             
-            Response.Cookies.Append("refresh_token", tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
+            Response.Cookies.Append(RefreshToken, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
             
             return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
         }
@@ -73,7 +72,7 @@ public class AuthenticationController : ControllerBase
             if (string.IsNullOrEmpty(accessToken))
                 throw new UnauthorizedAccessException("Access token is required.");
             
-            string? oldRefreshToken = Request.Cookies[REFRESH_TOKEN];
+            string? oldRefreshToken = Request.Cookies[RefreshToken];
             
             if (string.IsNullOrEmpty(oldRefreshToken))
                 throw new UnauthorizedAccessException("Refresh token is null or empty");
@@ -81,7 +80,7 @@ public class AuthenticationController : ControllerBase
             TokenResponseEntityDto tokenResponseEntityDto = 
                 await _authenticationService.Refresh(accessToken, oldRefreshToken);
 
-            Response.Cookies.Append(REFRESH_TOKEN, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
+            Response.Cookies.Append(RefreshToken, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
             
             return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
         }
@@ -103,16 +102,16 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
         try
         {
-            string? refreshToken = Request.Cookies[REFRESH_TOKEN];
+            string? refreshToken = Request.Cookies[RefreshToken];
         
             if (!string.IsNullOrEmpty(refreshToken))
-                _authenticationService.InvalidateRefreshToken(refreshToken);
+                await _authenticationService.InvalidateRefreshToken(refreshToken);
 
-            Response.Cookies.Append(REFRESH_TOKEN, "", GetCookieOptions());
+            Response.Cookies.Append(RefreshToken, "", GetCookieOptions());
 
             return Ok();
         }
@@ -157,8 +156,8 @@ public class AuthenticationController : ControllerBase
             HttpOnly = true,
             Secure = _env.IsProduction(),
             SameSite = SameSiteMode.Lax,
-            Path = "/api/auth/refresh",
-            Expires = DateTimeOffset.Now.AddMinutes(IntegerType.FromString(refreshTokenExpiration))
+            Path = "/api/auth", // The HTTP cookie is only received by the auth endpoints
+            Expires = DateTimeOffset.UtcNow.AddMinutes(int.Parse(refreshTokenExpiration))
         };
     }
 }
