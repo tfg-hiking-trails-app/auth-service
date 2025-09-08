@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
@@ -90,6 +91,23 @@ public class AuthenticationService : IAuthenticationService
         await _refreshTokenRepository.SaveChangesAsync();
     }
 
+    public async Task EditPassword(Guid userCode, UpdatePasswordEntityDto updatePasswordEntityDto)
+    {
+        User? user = await _userRepository.GetByCodeAsync(userCode);
+        
+        if (user is null)
+            throw new NotFoundEntityException(nameof(User), userCode);
+        
+        // Check old password
+        if (!_passwordHasher.VerifyHashedPassword(user.Password, updatePasswordEntityDto.Password!))
+            throw new ArgumentException("Password from user is incorrect");
+        
+        // Save new password
+        user.Password = _passwordHasher.HashPassword(updatePasswordEntityDto.NewPassword);
+
+        await _userRepository.SaveChangesAsync();
+    }
+
     private async Task InvalidateAllUserTokens(User user)
     {
         IEnumerable<RefreshToken> refreshTokens = await _refreshTokenRepository
@@ -104,10 +122,18 @@ public class AuthenticationService : IAuthenticationService
         await _refreshTokenRepository.SaveChangesAsync();
     }
 
-    private bool AccessTokenBelongsToUser(string accessToken, string userName)
+    public bool AccessTokenBelongsToUser(string accessToken, string userName)
     {
         IDictionary<string, object> payload = _tokenManager.GetPayloadFromJwt(accessToken);
         
         return payload.ContainsKey("username") && payload["username"].Equals(userName);
     }
+    
+    public bool AccessTokenBelongsToUser(string accessToken, Guid userCode)
+    {
+        IDictionary<string, object> payload = _tokenManager.GetPayloadFromJwt(accessToken);
+        
+        return payload.ContainsKey("userCode") && payload["userCode"].Equals(userCode.ToString());
+    }
+    
 }

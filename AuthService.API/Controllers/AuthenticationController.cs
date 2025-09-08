@@ -1,5 +1,7 @@
 ﻿using AuthService.API.DTOs;
+using AuthService.API.DTOs.Update;
 using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
 using AutoMapper;
 using Common.Domain.Exceptions;
@@ -15,15 +17,18 @@ public class AuthenticationController : ControllerBase
 {
     private const string RefreshToken = "refresh_token";
     private readonly IAuthenticationService _authenticationService;
+    private readonly ITokenManager _tokenManager;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
 
     public AuthenticationController(
-        IAuthenticationService authenticationService, 
+        IAuthenticationService authenticationService,
+        ITokenManager tokenManager,
         IMapper mapper,
         IWebHostEnvironment env)
     {
         _authenticationService = authenticationService;
+        _tokenManager = tokenManager;
         _mapper = mapper;
         _env = env;
     }
@@ -118,6 +123,47 @@ public class AuthenticationController : ControllerBase
         catch (NotFoundEntityException ex)
         {
             return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpPut("edit/password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> EditPassword([FromBody] UpdatePasswordDto updatePasswordDto)
+    {
+        try
+        {
+            if (!updatePasswordDto.NewPassword.Equals(updatePasswordDto.ConfirmNewPassword))
+                throw new ArgumentException("The passwords do not match.");
+            
+            string? accessToken = GetAccessTokenFromHeaders();
+            
+            if (string.IsNullOrEmpty(accessToken))
+                throw new UnauthorizedAccessException("Access token is required.");
+            
+            string? userCode = _tokenManager.GetUserCodeFromJwt(accessToken);
+            
+            if (string.IsNullOrEmpty(userCode) || !_authenticationService.AccessTokenBelongsToUser(accessToken, new Guid(userCode)))
+                throw new UnauthorizedAccessException("Access Denied");
+            
+            await _authenticationService.EditPassword(new Guid(userCode), 
+                _mapper.Map<UpdatePasswordEntityDto>(updatePasswordDto));
+            
+            return Ok();
+        }
+        catch (NotFoundEntityException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (Exception ex)
         {
