@@ -1,10 +1,13 @@
-﻿using AuthService.Application.DTOs;
+﻿using System.Text;
+using System.Text.Json;
+using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AutoMapper;
 using Common.Domain.Exceptions;
+using Common.Domain.Interfaces.Messaging;
 
 namespace AuthService.Application.Services;
 
@@ -14,6 +17,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenManager _tokenManager;
+    private readonly IRabbitMqQueueProducer _rabbitMqQueueProducer;
     private readonly IMapper _mapper;
 
     public AuthenticationService(
@@ -21,12 +25,14 @@ public class AuthenticationService : IAuthenticationService
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
         ITokenManager tokenManager,
+        IRabbitMqQueueProducer rabbitMqQueueProducer,
         IMapper mapper)
     {
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
         _tokenManager = tokenManager;
+        _rabbitMqQueueProducer = rabbitMqQueueProducer;
         _mapper = mapper;
     }
     
@@ -106,6 +112,40 @@ public class AuthenticationService : IAuthenticationService
         user.Password = _passwordHasher.HashPassword(updatePasswordEntityDto.NewPassword);
 
         await _userRepository.SaveChangesAsync();
+    }
+
+    public async Task EditUsername(Guid userCode, string newUsername)
+    {
+        User? user = await _userRepository.GetByCodeAsync(userCode);
+        
+        if (user is null)
+            throw new NotFoundEntityException(nameof(User), userCode);
+        
+        // The new username is the same as the current username.
+        if (user.Username.Equals(newUsername))
+            throw new ArgumentException("This is your username");
+        
+        // Check if exists new username
+        if (await _userRepository.GetByUserName(newUsername) is not null)
+            throw new ArgumentException("Username already exists");
+        
+        await PublishUsernameChangeAsync(user.Username, newUsername);
+        
+        user.Username = newUsername;
+        
+        await _userRepository.SaveChangesAsync();
+
+    }
+
+    private async Task PublishUsernameChangeAsync(string oldUsername, string newUsername)
+    {
+        string body = JsonSerializer.Serialize(new UpdateUsernameEntityDto
+        {
+            OldUsername = oldUsername,
+            NewUsername = newUsername
+        });
+
+        await _rabbitMqQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
     }
 
     private async Task InvalidateAllUserTokens(User user)

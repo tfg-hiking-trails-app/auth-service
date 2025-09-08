@@ -13,6 +13,8 @@ public interface IAuthenticationService
 
     Task EditPassword(Guid userCode, UpdatePasswordEntityDto updatePasswordEntityDto);
 
+    Task EditUsername(Guid userCode, string newUsername);
+
     bool AccessTokenBelongsToUser(string accessToken, string userName);
 
     bool AccessTokenBelongsToUser(string accessToken, Guid userCode);

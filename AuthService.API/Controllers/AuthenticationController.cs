@@ -131,7 +131,7 @@ public class AuthenticationController : ControllerBase
     }
     
     [HttpPut("edit/password")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -140,12 +140,9 @@ public class AuthenticationController : ControllerBase
         try
         {
             if (!updatePasswordDto.NewPassword.Equals(updatePasswordDto.ConfirmNewPassword))
-                throw new ArgumentException("The passwords do not match.");
+                throw new ArgumentException("The passwords do not match");
             
-            string? accessToken = GetAccessTokenFromHeaders();
-            
-            if (string.IsNullOrEmpty(accessToken))
-                throw new UnauthorizedAccessException("Access token is required.");
+            string accessToken = GetAccessTokenFromHeaders();
             
             string? userCode = _tokenManager.GetUserCodeFromJwt(accessToken);
             
@@ -155,7 +152,41 @@ public class AuthenticationController : ControllerBase
             await _authenticationService.EditPassword(new Guid(userCode), 
                 _mapper.Map<UpdatePasswordEntityDto>(updatePasswordDto));
             
-            return Ok();
+            return NoContent();
+        }
+        catch (NotFoundEntityException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPut("edit/username")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> EditUsername([FromBody] UpdateUsernameDto updateUsernameDto)
+    {
+        try
+        {
+            string accessToken = GetAccessTokenFromHeaders();
+            
+            string? userCode = _tokenManager.GetUserCodeFromJwt(accessToken);
+            
+            if (string.IsNullOrEmpty(userCode) || !_authenticationService.AccessTokenBelongsToUser(accessToken, new Guid(userCode)))
+                throw new UnauthorizedAccessException("Access Denied");
+            
+            await _authenticationService.EditUsername(new Guid(userCode), updateUsernameDto.Username.Trim());
+            
+            return NoContent();
         }
         catch (NotFoundEntityException ex)
         {
@@ -171,23 +202,23 @@ public class AuthenticationController : ControllerBase
         }
     }
     
-    private string? GetAccessTokenFromHeaders()
+    private string GetAccessTokenFromHeaders()
     {
         StringValues authorizations = Request.Headers["Authorization"];
 
         if (string.IsNullOrEmpty(authorizations))
-            return null;
+            throw new UnauthorizedAccessException("Access token is required");
 
         string? value = authorizations.FirstOrDefault();
-        
+
         if (string.IsNullOrEmpty(value))
-            return null;
+            throw new UnauthorizedAccessException("Access token is required");
         
         string prefix = "Bearer ";
 
         return value.StartsWith(prefix)
             ? value.Substring(prefix.Length)
-            : null;
+            : throw new UnauthorizedAccessException("Access token is required");
     }
 
     private CookieOptions GetCookieOptions()
