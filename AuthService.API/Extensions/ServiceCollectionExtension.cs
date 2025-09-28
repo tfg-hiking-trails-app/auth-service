@@ -5,11 +5,15 @@ using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
+using AuthService.Infrastructure.Messaging.Producer;
 using AuthService.Infrastructure.Security.Encryption;
 using AuthService.Infrastructure.Security.Token;
 using Common.API.DTOs.Mapping;
+using Common.Domain.Interfaces.Messaging;
 using Common.Infrastructure.Data.Configuration.Mapping;
+using Common.Infrastructure.Messaging.Configuration;
 using Microsoft.OpenApi.Models;
+using ITokenManager = AuthService.Application.Interfaces.ITokenManager;
 
 namespace AuthService.API.Extensions;
 
@@ -26,6 +30,8 @@ public static class ServiceCollectionExtension
         services.AddServices();
         
         services.AddRepositories();
+        
+        services.AddRabbitMq();
         
         services.AddSwaggerGen();
     }
@@ -61,6 +67,17 @@ public static class ServiceCollectionExtension
             typeof(StatusEntityProfile).Assembly,
             typeof(RefreshTokenEntityProfile).Assembly
         );
+    }
+    
+    private static void AddRabbitMq(this IServiceCollection services)
+    {
+        // Providers
+        services.AddScoped<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>();
+        services.AddScoped<IRabbitMqChannelProvider, RabbitMqChannelProvider>();
+        services.AddScoped<IRabbitMqQueueProvider, RabbitMqQueueProvider>();
+        
+        // Processors
+        services.AddScoped<IRabbitMqQueueProducer, RabbitMqQueueProducer>();
     }
     
     private static void AddSwaggerGen(this IServiceCollection services)

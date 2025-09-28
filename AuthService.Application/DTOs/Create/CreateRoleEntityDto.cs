@@ -1,6 +1,8 @@
-﻿namespace AuthService.Application.DTOs.Create;
+﻿using Common.Application.DTOs.Create;
 
-public record CreateRoleEntityDto
+namespace AuthService.Application.DTOs.Create;
+
+public record CreateRoleEntityDto : CreateBaseEntityDto
 {
     public string? RoleValue { get; set; }
 }

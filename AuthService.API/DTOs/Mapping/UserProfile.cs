@@ -14,5 +14,7 @@ public class UserProfile : Profile
         CreateMap<UserDto, UserEntityDto>().ReverseMap();
         CreateMap<CreateUserDto, CreateUserEntityDto>().ReverseMap();
         CreateMap<UpdateUserDto, UpdateUserEntityDto>().ReverseMap();
+        
+        CreateMap<UpdatePasswordDto, UpdatePasswordEntityDto>().ReverseMap();
     }
 }

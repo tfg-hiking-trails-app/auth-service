@@ -12,7 +12,7 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace AuthService.Infrastructure.Security.Token;
 
-public class TokenManager : ITokenManager
+public class TokenManager : Common.Infrastructure.Security.Tokens.TokenManager, ITokenManager
 {
     private readonly IMapper _mapper;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
@@ -27,10 +27,10 @@ public class TokenManager : ITokenManager
     
     public string GenerateAccessToken(UserEntityDto user)
     {
-        List<Claim> claims = new List<Claim>
-        {
-            new("username", user.Username!)
-        };
+        List<Claim> claims = [
+            new("username", user.Username!),
+            new("userCode", user.Code.ToString())
+        ];
 
         string? secretKey = Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET_KEY");
         string? expiry = Environment.GetEnvironmentVariable("ACCESS_TOKEN_EXPIRE");
@@ -70,15 +70,10 @@ public class TokenManager : ITokenManager
 
         RefreshToken refreshToken = _mapper.Map<RefreshToken>(createEntityDto);
         
+        refreshToken.Code = Guid.NewGuid();
         await _refreshTokenRepository.AddAsync(refreshToken);
         
         return _mapper.Map<RefreshTokenEntityDto>(refreshToken);
     }
-
-    public IDictionary<string, object> GetPayloadFromJwt(string token)
-    {
-        JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-        
-        return handler.ReadJwtToken(token).Payload;
-    }
+    
 }

@@ -11,10 +11,19 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["AuthService.API/AuthService.API.csproj", "AuthService.API/"]
-RUN dotnet restore "./AuthService.API/AuthService.API.csproj"
+# Auth Service
+COPY ["auth-service/AuthService.API/AuthService.API.csproj", "auth-service/AuthService.API/"]
+COPY ["auth-service/AuthService.Application/AuthService.Application.csproj", "auth-service/AuthService.Application/"]
+COPY ["auth-service/AuthService.Domain/AuthService.Domain.csproj", "auth-service/AuthService.Domain/"]
+COPY ["auth-service/AuthService.Infrastructure/AuthService.Infrastructure.csproj", "auth-service/AuthService.Infrastructure/"]
+# Common library
+COPY ["hiking-trail-common/Common.API/Common.API.csproj", "hiking-trail-common/Common.API/"]
+COPY ["hiking-trail-common/Common.Application/Common.Application.csproj", "hiking-trail-common/Common.Application/"]
+COPY ["hiking-trail-common/Common.Domain/Common.Domain.csproj", "hiking-trail-common/Common.Domain/"]
+COPY ["hiking-trail-common/Common.Infrastructure/Common.Infrastructure.csproj", "hiking-trail-common/Common.Infrastructure/"]
+RUN dotnet restore "./auth-service/AuthService.API/AuthService.API.csproj"
 COPY . .
-WORKDIR "/src/AuthService.API"
+WORKDIR "/src/auth-service/AuthService.API"
 RUN dotnet build "./AuthService.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.

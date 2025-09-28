@@ -1,7 +1,8 @@
-﻿namespace AuthService.Application.DTOs;
+﻿using Common.Application.DTOs;
 
-public record RoleEntityDto
+namespace AuthService.Application.DTOs;
+
+public record RoleEntityDto : BaseEntityDto
 {
-    public Guid Code { get; set; }
     public string? RoleValue { get; set; }
 }

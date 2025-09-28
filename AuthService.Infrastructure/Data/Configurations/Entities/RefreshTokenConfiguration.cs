@@ -12,19 +12,24 @@ public class RefreshTokenConfiguration : EntityConfiguration<RefreshToken>
         base.Configure(builder);
 
         builder.ToTable("RefreshToken");
+        
         builder.HasOne(d => d.User)
             .WithMany(p => p.RefreshTokens)
             .HasForeignKey(d => d.UserId);
+        
         builder.Property(e => e.RefreshTokenValue)
             .IsRequired()
             .HasMaxLength(255)
             .HasColumnName("refresh_token");
+        
         builder.Property(e => e.Active)
             .IsRequired()
             .HasColumnName("active");
+        
         builder.Property(e => e.Expiration)
             .IsRequired()
             .HasColumnName("expiration");
+        
         builder.Property(e => e.Used)
             .IsRequired()
             .HasColumnName("used");
