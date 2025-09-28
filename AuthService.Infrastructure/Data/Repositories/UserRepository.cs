@@ -84,7 +84,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             .FirstOrDefaultAsync(e => e.Username.Equals(userName));
     }
 
-    public override async Task AddAsync(User entity)
+    public override async Task<int> AddAsync(User entity)
     {
         if (Entity.Any(e => e.Username == entity.Username))
             throw new EntityAlreadyExistsException(nameof(User), "Username", entity.Username);
@@ -93,6 +93,8 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
             throw new EntityAlreadyExistsException(nameof(User), "Email", entity.Email);
         
         await base.AddAsync(entity);
+        
+        return entity.Id;
     }
     
 }
