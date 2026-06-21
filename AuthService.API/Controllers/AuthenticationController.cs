@@ -72,7 +72,6 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            // The account is created but no session is started: the user must log in afterwards.
             await _authenticationService.Register(_mapper.Map<RegisterEntityDto>(registerDto));
 
             return StatusCode(StatusCodes.Status201Created);

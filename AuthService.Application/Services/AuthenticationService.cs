@@ -76,8 +76,7 @@ public class AuthenticationService : IAuthenticationService
         await _userRepository.AddAsync(user);
 
         await PublishAccountCreationAsync(user.Code, user.Username);
-
-        // No auto-login: the account is created but the user must sign in afterwards.
+        
         return user.Code;
     }
 
