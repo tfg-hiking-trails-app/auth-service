@@ -49,7 +49,7 @@ public class AuthenticationService : IAuthenticationService
         _mapper = mapper;
     }
 
-    public async Task<TokenResponseEntityDto> Register(RegisterEntityDto entityDto)
+    public async Task<Guid> Register(RegisterEntityDto entityDto)
     {
         CheckRegistrationValidity(entityDto);
         
@@ -74,16 +74,11 @@ public class AuthenticationService : IAuthenticationService
         };
         
         await _userRepository.AddAsync(user);
-        
-        await PublishAccountCreationAsync(user.Code, user.Username);
-        
-        UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
 
-        return new TokenResponseEntityDto
-        {
-            AccessToken = _tokenManager.GenerateAccessToken(userEntityDto),
-            RefreshToken = (await _tokenManager.GenerateRefreshToken(userEntityDto)).RefreshTokenValue
-        };
+        await PublishAccountCreationAsync(user.Code, user.Username);
+
+        // No auto-login: the account is created but the user must sign in afterwards.
+        return user.Code;
     }
 
     public async Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto)

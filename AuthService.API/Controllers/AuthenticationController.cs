@@ -64,20 +64,18 @@ public class AuthenticationController : ControllerBase
     }
     
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TokenResponseDto>> Register([FromBody] RegisterDto registerDto)
+    public async Task<ActionResult> Register([FromBody] RegisterDto registerDto)
     {
         try
         {
-            TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Register(
-                _mapper.Map<RegisterEntityDto>(registerDto));
+            // The account is created but no session is started: the user must log in afterwards.
+            await _authenticationService.Register(_mapper.Map<RegisterEntityDto>(registerDto));
 
-            Response.Cookies.Append(RefreshToken, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
-
-            return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
+            return StatusCode(StatusCodes.Status201Created);
         }
         catch (EntityAlreadyExistsException ex)
         {
