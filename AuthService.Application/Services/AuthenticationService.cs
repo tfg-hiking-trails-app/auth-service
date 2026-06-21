@@ -1,41 +1,91 @@
 ﻿using System.Text;
 using System.Text.Json;
 using AuthService.Application.DTOs;
+using AuthService.Application.DTOs.Create;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
+using AuthService.Domain.Interfaces.Messaging;
 using AutoMapper;
 using Common.Domain.Exceptions;
-using Common.Domain.Interfaces.Messaging;
 
 namespace AuthService.Application.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
+    private const string DefaultRole = "basic";
+    private const string DefaultStatus = "active";
+
     private readonly IUserRepository _userRepository;
+    private readonly IRoleRepository _roleRepository;
+    private readonly IStatusRepository _statusRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenManager _tokenManager;
-    private readonly IRabbitMqQueueProducer _rabbitMqQueueProducer;
+    private readonly IUsernameChangeQueueProducer _usernameChangeQueueProducer;
+    private readonly IAccountCreationQueueProducer _accountCreationQueueProducer;
     private readonly IMapper _mapper;
 
     public AuthenticationService(
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IStatusRepository statusRepository,
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
         ITokenManager tokenManager,
-        IRabbitMqQueueProducer rabbitMqQueueProducer,
+        IUsernameChangeQueueProducer usernameChangeQueueProducer,
+        IAccountCreationQueueProducer accountCreationQueueProducer,
         IMapper mapper)
     {
         _userRepository = userRepository;
+        _roleRepository = roleRepository;
+        _statusRepository = statusRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
         _tokenManager = tokenManager;
-        _rabbitMqQueueProducer = rabbitMqQueueProducer;
+        _usernameChangeQueueProducer = usernameChangeQueueProducer;
+        _accountCreationQueueProducer = accountCreationQueueProducer;
         _mapper = mapper;
     }
-    
+
+    public async Task<TokenResponseEntityDto> Register(RegisterEntityDto entityDto)
+    {
+        CheckRegistrationValidity(entityDto);
+        
+        Role? role = await _roleRepository.GetByValueAsync(DefaultRole);
+
+        if (role is null)
+            throw new NotFoundEntityException(nameof(Role), "role", DefaultRole);
+
+        Status? status = await _statusRepository.GetByValueAsync(DefaultStatus);
+
+        if (status is null)
+            throw new NotFoundEntityException(nameof(Status), "status", DefaultStatus);
+
+        User user = new User
+        {
+            Code = Guid.NewGuid(),
+            Username = entityDto.Username.Trim(),
+            Email = entityDto.Email.Trim(),
+            Password = _passwordHasher.HashPassword(entityDto.Password),
+            RoleId = role.Id,
+            StatusId = status.Id
+        };
+        
+        await _userRepository.AddAsync(user);
+        
+        await PublishAccountCreationAsync(user.Code, user.Username);
+        
+        UserEntityDto userEntityDto = _mapper.Map<UserEntityDto>(user);
+
+        return new TokenResponseEntityDto
+        {
+            AccessToken = _tokenManager.GenerateAccessToken(userEntityDto),
+            RefreshToken = (await _tokenManager.GenerateRefreshToken(userEntityDto)).RefreshTokenValue
+        };
+    }
+
     public async Task<TokenResponseEntityDto> Login(AuthenticationEntityDto entityDto)
     {
         User? user = await _userRepository.GetByUserName(entityDto.Username!);
@@ -145,7 +195,33 @@ public class AuthenticationService : IAuthenticationService
             NewUsername = newUsername
         });
 
-        await _rabbitMqQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
+        await _usernameChangeQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
+    }
+
+    private async Task PublishAccountCreationAsync(Guid code, string username)
+    {
+        string body = JsonSerializer.Serialize(new AccountCreationEntityDto
+        {
+            Code = code,
+            Username = username
+        });
+
+        await _accountCreationQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
+    }
+
+    private static void CheckRegistrationValidity(RegisterEntityDto entityDto)
+    {
+        if (string.IsNullOrWhiteSpace(entityDto.Username))
+            throw new ArgumentException("Username is null or empty");
+
+        if (string.IsNullOrWhiteSpace(entityDto.Email))
+            throw new ArgumentException("Email is null or empty");
+
+        if (string.IsNullOrWhiteSpace(entityDto.Password) || string.IsNullOrWhiteSpace(entityDto.ConfirmPassword))
+            throw new ArgumentException("Password is null or empty");
+
+        if (!entityDto.Password.Equals(entityDto.ConfirmPassword))
+            throw new ArgumentException("Password and confirm password do not match");
     }
 
     private async Task InvalidateAllUserTokens(User user)

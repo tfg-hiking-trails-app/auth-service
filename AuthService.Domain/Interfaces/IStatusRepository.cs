@@ -5,4 +5,5 @@ namespace AuthService.Domain.Interfaces;
 
 public interface IStatusRepository : IRepository<Status>
 {
+    Task<Status?> GetByValueAsync(string statusValue);
 }

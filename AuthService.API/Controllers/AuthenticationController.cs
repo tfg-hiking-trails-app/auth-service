@@ -63,6 +63,36 @@ public class AuthenticationController : ControllerBase
         }
     }
     
+    [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<TokenResponseDto>> Register([FromBody] RegisterDto registerDto)
+    {
+        try
+        {
+            TokenResponseEntityDto tokenResponseEntityDto = await _authenticationService.Register(
+                _mapper.Map<RegisterEntityDto>(registerDto));
+
+            Response.Cookies.Append(RefreshToken, tokenResponseEntityDto.RefreshToken!, GetCookieOptions());
+
+            return Ok(_mapper.Map<TokenResponseDto>(tokenResponseEntityDto));
+        }
+        catch (EntityAlreadyExistsException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (NotFoundEntityException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
