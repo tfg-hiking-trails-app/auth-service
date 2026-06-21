@@ -2,6 +2,7 @@
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
 using AuthService.Domain.Interfaces;
+using AuthService.Domain.Interfaces.Messaging;
 using AuthService.Infrastructure.Data;
 using AuthService.Infrastructure.Data.Configurations.Mapping;
 using AuthService.Infrastructure.Data.Repositories;
@@ -77,7 +78,8 @@ public static class ServiceCollectionExtension
         services.AddScoped<IRabbitMqQueueProvider, RabbitMqQueueProvider>();
         
         // Processors
-        services.AddScoped<IRabbitMqQueueProducer, RabbitMqQueueProducer>();
+        services.AddScoped<IUsernameChangeQueueProducer, UsernameChangeQueueProducer>();
+        services.AddScoped<IAccountCreationQueueProducer, AccountCreationQueueProducer>();
     }
     
     private static void AddSwaggerGen(this IServiceCollection services)

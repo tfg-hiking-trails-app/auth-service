@@ -63,6 +63,33 @@ public class AuthenticationController : ControllerBase
         }
     }
     
+    [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> Register([FromBody] RegisterDto registerDto)
+    {
+        try
+        {
+            await _authenticationService.Register(_mapper.Map<RegisterEntityDto>(registerDto));
+
+            return StatusCode(StatusCodes.Status201Created);
+        }
+        catch (EntityAlreadyExistsException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (NotFoundEntityException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

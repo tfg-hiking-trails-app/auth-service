@@ -8,5 +8,6 @@ public class AuthenticationProfile : Profile
     public AuthenticationProfile()
     {
         CreateMap<AuthenticationDto, AuthenticationEntityDto>().ReverseMap();
+        CreateMap<RegisterDto, RegisterEntityDto>().ReverseMap();
     }
 }
