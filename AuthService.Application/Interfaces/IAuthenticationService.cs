@@ -17,6 +17,8 @@ public interface IAuthenticationService
 
     Task EditUsername(Guid userCode, string newUsername);
 
+    Task DeleteAccount(Guid userCode);
+
     bool AccessTokenBelongsToUser(string accessToken, string userName);
 
     bool AccessTokenBelongsToUser(string accessToken, Guid userCode);

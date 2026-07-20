@@ -54,15 +54,15 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         return await Entity
             .Include(u => u.Role)
             .Include(u => u.Status)
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.Id == id && !e.Deleted);
     }
-    
+
     public override User? GetByCode(Guid code)
     {
         return Entity
             .Include(u => u.Role)
             .Include(u => u.Status)
-            .FirstOrDefault(e => e.Code == code);
+            .FirstOrDefault(e => e.Code == code && !e.Deleted);
     }
 
     public override async Task<User?> GetByCodeAsync(Guid code)
@@ -70,7 +70,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         return await Entity
             .Include(u => u.Role)
             .Include(u => u.Status)
-            .FirstOrDefaultAsync(e => e.Code == code);
+            .FirstOrDefaultAsync(e => e.Code == code && !e.Deleted);
     }
 
     public async Task<User?> GetByUserName(string userName)
@@ -81,7 +81,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
         return await Entity
             .Include(u => u.Role)
             .Include(u => u.Status)
-            .FirstOrDefaultAsync(e => e.Username.Equals(userName));
+            .FirstOrDefaultAsync(e => e.Username.Equals(userName) && !e.Deleted);
     }
 
     public override async Task<int> AddAsync(User entity)
