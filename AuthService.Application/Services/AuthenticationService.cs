@@ -2,6 +2,7 @@
 using System.Text.Json;
 using AuthService.Application.DTOs;
 using AuthService.Application.DTOs.Create;
+using AuthService.Application.DTOs.Delete;
 using AuthService.Application.DTOs.Update;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
@@ -25,6 +26,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly ITokenManager _tokenManager;
     private readonly IUsernameChangeQueueProducer _usernameChangeQueueProducer;
     private readonly IAccountCreationQueueProducer _accountCreationQueueProducer;
+    private readonly IAccountDeletionQueueProducer _accountDeletionQueueProducer;
     private readonly IMapper _mapper;
 
     public AuthenticationService(
@@ -36,6 +38,7 @@ public class AuthenticationService : IAuthenticationService
         ITokenManager tokenManager,
         IUsernameChangeQueueProducer usernameChangeQueueProducer,
         IAccountCreationQueueProducer accountCreationQueueProducer,
+        IAccountDeletionQueueProducer accountDeletionQueueProducer,
         IMapper mapper)
     {
         _userRepository = userRepository;
@@ -46,6 +49,7 @@ public class AuthenticationService : IAuthenticationService
         _tokenManager = tokenManager;
         _usernameChangeQueueProducer = usernameChangeQueueProducer;
         _accountCreationQueueProducer = accountCreationQueueProducer;
+        _accountDeletionQueueProducer = accountDeletionQueueProducer;
         _mapper = mapper;
     }
 
@@ -176,9 +180,27 @@ public class AuthenticationService : IAuthenticationService
         await PublishUsernameChangeAsync(user.Username, newUsername);
         
         user.Username = newUsername;
-        
+
         await _userRepository.SaveChangesAsync();
 
+    }
+
+    public async Task DeleteAccount(Guid userCode)
+    {
+        User? user = await _userRepository.GetByCodeAsync(userCode);
+
+        if (user is null)
+            throw new NotFoundEntityException(nameof(User), userCode);
+
+        // Logical deletion: the row is kept so the content referencing this user stays consistent.
+        user.Deleted = true;
+
+        await _userRepository.SaveChangesAsync();
+
+        // Once deleted the user must not be able to keep or renew a session.
+        await InvalidateAllUserTokens(user);
+
+        await PublishAccountDeletionAsync(user.Code);
     }
 
     private async Task PublishUsernameChangeAsync(string oldUsername, string newUsername)
@@ -201,6 +223,16 @@ public class AuthenticationService : IAuthenticationService
         });
 
         await _accountCreationQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
+    }
+
+    private async Task PublishAccountDeletionAsync(Guid code)
+    {
+        string body = JsonSerializer.Serialize(new AccountDeletionEntityDto
+        {
+            Code = code
+        });
+
+        await _accountDeletionQueueProducer.BasicPublishAsync(Encoding.UTF8.GetBytes(body));
     }
 
     private static void CheckRegistrationValidity(RegisterEntityDto entityDto)

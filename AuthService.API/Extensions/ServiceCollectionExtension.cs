@@ -80,6 +80,7 @@ public static class ServiceCollectionExtension
         // Processors
         services.AddScoped<IUsernameChangeQueueProducer, UsernameChangeQueueProducer>();
         services.AddScoped<IAccountCreationQueueProducer, AccountCreationQueueProducer>();
+        services.AddScoped<IAccountDeletionQueueProducer, AccountDeletionQueueProducer>();
     }
     
     private static void AddSwaggerGen(this IServiceCollection services)

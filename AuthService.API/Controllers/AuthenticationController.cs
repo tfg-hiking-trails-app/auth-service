@@ -229,6 +229,43 @@ public class AuthenticationController : ControllerBase
         }
     }
     
+    [HttpDelete("account")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> DeleteAccount()
+    {
+        try
+        {
+            string accessToken = GetAccessTokenFromHeaders();
+
+            string? userCode = _tokenManager.GetUserCodeFromJwt(accessToken);
+
+            if (string.IsNullOrEmpty(userCode) || !_authenticationService.AccessTokenBelongsToUser(accessToken, new Guid(userCode)))
+                throw new UnauthorizedAccessException("Access Denied");
+
+            await _authenticationService.DeleteAccount(new Guid(userCode));
+
+            // The session is over, so the refresh token cookie is cleared.
+            Response.Cookies.Append(RefreshToken, "", GetCookieOptions());
+
+            return NoContent();
+        }
+        catch (NotFoundEntityException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     private string GetAccessTokenFromHeaders()
     {
         StringValues authorizations = Request.Headers["Authorization"];
